@@ -1,1 +1,1 @@
-go install scouting/app/main
+go build scouting/app/main

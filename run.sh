@@ -1,4 +1,4 @@
-if [ ! -f ~/go/bin/main ]; then                                                                                                                                                                  
+if [ ! -f ./main ]; then                                                                                                                                                                  
     ./build.sh                                                                                                                                                                                 
 fi
-~/go/bin/main
+./main
