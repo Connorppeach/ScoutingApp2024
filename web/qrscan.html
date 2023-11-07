@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Instascan</title>
+    <script type="text/javascript" src="instascan.min.js"></script>
+    <style>
+    #preview {
+      position: fixed;
+      top:0;
+      left:0;
+      width:50%;
+    }
+    #output {
+      position: fixed;
+      top:0;
+      right:0;
+      width:50%;
+      height:100%;
+    }
+    </style>
+  </head>
+  <body>
+    <video id="preview"></video>
+    <textarea id="output"></textarea>
+    <script type="text/javascript">
+
+      textarea = document.getElementById("output")
+
+      compdata = []
+      function addtoarea(data, index){
+        compdata[index] = data
+
+        textarea.value = ""
+
+
+        console.log(data)
+        for(i=0; i < compdata.length; i++){
+          textarea.value = textarea.value + compdata[i] + "\n"
+        }
+      }
+
+      let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+      scanner.addListener('scan', function (content) {
+        console.log(content);
+
+        index = content[0] + content[1]
+        total = content[2] + content[3]
+
+        addtoarea(content, 0)
+      });
+      Instascan.Camera.getCameras().then(function (cameras) {
+        if (cameras.length > 0) {
+          scanner.start(cameras[0]);
+        } else {
+          console.error('No cameras found.');
+        }
+      }).catch(function (e) {
+        console.error(e);
+      });
+    </script>
+  </body>
+</html>

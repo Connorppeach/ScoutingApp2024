@@ -1,1 +1,1 @@
-go build scouting/app/main
+go build

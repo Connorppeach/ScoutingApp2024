@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Instascan</title>
+    <!-- https://github.com/davidshimjs/qrcodejs -->
+    <script type="text/javascript" src="./qrcode.min.js"></script>
+  </head>
+  <body>
+    <div style="width:50%;height:50%;" id="qrcode"></div>
+    <button onclick="increment()">></button>
+    <button onclick="decrement()"><</<button>
+    <script type="text/javascript">
+
+    compdata = "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+    compdata.match(/.{1,150}/g)
+
+    index = 0
+
+    function setQrCode(data) {
+      var qrcode = new QRCode(document.getElementById("qrcode"), {
+	      text: data,
+	      width: 512,
+	      height: 512,
+	      colorDark : "#000000",
+	      colorLight : "#ffffff",
+	      correctLevel : QRCode.CorrectLevel.H
+      });
+    }
+
+    
+
+    function increment() {
+      index++
+      setQrCode(compdata[index])
+    }
+
+    functon decrement() {
+      index--
+      setQrCode(compdata[index])
+    }
+
+    </script>
+  </body>
+</html>
