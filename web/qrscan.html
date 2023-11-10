@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
+    
     <title>Instascan</title>
     <script type="text/javascript" src="instascan.min.js"></script>
-    <body style="background-color:rgb(8, 33, 17);"></body>
     <style>
-    
-      
     #preview {
       position: fixed;
       top:0;
@@ -21,10 +19,38 @@
       height:100%;
     }
     </style>
+ <style>
+   body {
+       background-image: url('Unenthused.jpg');
+   }
+ </style>
+ <style>
+div.background {
+  background: url(klematis.jpg) repeat;
+  border: 2px solid black;
+}
+
+div.transbox {
+  margin: 30px;
+  background-color: #ffffff;
+  border: 1px solid black;
+  opacity: 0.5;
+}
+
+div.transbox p {
+  margin: 5%;
+  font-weight: bold;
+  color: #000000;
+}
+</style>
   </head>
   <body>
     <video id="preview"></video>
-    <textarea id="output" style="background-color: #3d536e;"></textarea>
+    <div class="background">
+      <div class="transbox">
+    <textarea id="output"></textarea>
+      </div>
+</div>
     <script type="text/javascript">
 
       textarea = document.getElementById("output")
@@ -47,9 +73,9 @@
         console.log(content);
 
         index = content[0] + content[1]
-        total = content[2] + content[3] 
+        total = content[2] + content[3]
 
-        addtoarea(content, Number(index))
+        addtoarea(content, 0)
       });
       Instascan.Camera.getCameras().then(function (cameras) {
         if (cameras.length > 0) {
