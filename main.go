@@ -109,8 +109,9 @@ func main() {
 	r.StaticFile("/qrscan", "./web/qrscan.html")
 	r.StaticFile("/qrgen", "./web/qrgen.html")
 
-	r.StaticFile("/src/instascan.min.js", "./web/src/instascan.min.js")
-	r.StaticFile("/src/qrcode.js", "./web/src/qrcode.js")
+	r.StaticFile("/src/qr-scanner.umd.min.js", "./web/src/qr-scanner.umd.min.js")
+	r.StaticFile("/src/qr-scanner-worker.min.js", "./web/src/qr-scanner-worker.min.js")
+	r.StaticFile("/src/qr.js", "./web/src/qr.js")
 	r.StaticFile("/src/style.css", "./web/src/style.css")
 
 	r.Run(":80")

@@ -3,20 +3,42 @@
   <head>
     
     <title>Instascan</title>
-    <script type="text/javascript" src="/src/instascan.min.js"></script>
+    <script src="/src/qr-scanner.umd.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./src/style.css" />
     <style>
-    #preview {
-      position: fixed;
-      top:0;
-      left:0;
-      width:50%;
+    svg {
+      z-index: 5;
     }
-    #output {
-      position: fixed;
-      top:0;
-      right:0;
-      width:50%;
-      height:100%;
+    #overlaydiv {
+      position: relative;
+      z-index: 10;
+      color: #059100;
+      margin: 0 auto;
+    }
+    #overlaydiv:before {
+      content: '';
+      position: absolute;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 5px;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+    #preview {
+      width: 100%;
+      display: block;
+      width:100%;
+      max-height: 100vh;
+    }
+    #mostrecentscan{
+      position: absolute;
+      top:10px;
+      right:10px;
+      width:20vw;
+    }
+    #qrindex {
+
     }
     </style>
  <style>
@@ -45,53 +67,84 @@ div.transbox p {
 </style>
   </head>
   <body>
-    <video id="preview"></video>
-    <div class="background">
-      <div class="transbox">
-    <textarea id="output" style="border: 20px solid #f0d662; border-radius: 10px;"></textarea>
-      </div>
-</div>
+    <div class="topnav">
+      <a href="/">Dashboard</a>
+      <a href="/data">Data</a>
+      <a href="/matchscout">Match Scouting</a>
+      <a href="/pitscout">Pit Scouting</a>
+      <a href="/fup">File Upload</a>
+      <a class="active" href="/fdown">File Download</a>
+      <a href="/tba">TBA</a>
+    </div>
+    <div id="overlaydiv">
+      <video id="preview"></video>
+      <p id="mostrecentscan"></p>
+      <p id="qrindex"></p>
+    </div>
+    
+    
     <script type="text/javascript">
 
-      textarea = document.getElementById("output")
+      //textarea = document.getElementById("output")
+      //textarea.value = ""
+      mostrecentscan = getel('mostrecentscan')
+      qrindex = getel('qrindex')
+
 
       compdata = []
-      function addtoarea(data, index){
-        compdata[index] = data
+      prevcount = 0
 
-        textarea.value = ""
+      function addtoarea(data){
+        index = parseInt(data.split("•")[0], 36)
+        count = parseInt(data.split("•")[1], 36)
+        data = data.split("•")[2]
 
+        mostrecentscan.innerText = data
 
-        console.log(data)
+        if(compdata[index] != data){
+          if(count != prevcount){
+            prevcount = count
+            compdata = []
+          }
+          compdata[index] = data
+        }
+
+        if(!compdata.includes(undefined)){
+          alert("Finished!")
+        }
+
+        //textarea.value = "" 
         for(i=0; i < compdata.length; i++){
-          textarea.value = textarea.value + compdata[i] + "\n"
+          //textarea.value = textarea.value + compdata[i]
         }
       }
 
-      let opts = {
-        continuous: true,
-        mirror: true,
-        video: document.getElementById('preview')
+      const qrScanner = new QrScanner(
+        getel("preview"),
+        result => addtoarea(result.data),
+         {
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+         },
+      );
+      qrScanner.start();
+
+      function getel(str){return document.getElementById(str)}
+
+      overlaydiv = getel('overlaydiv')
+      video = getel('preview')
+
+      function resizeOverlay(){
+
       }
 
-      let scanner = new Instascan.Scanner(opts);
-      scanner.addListener('scan', function (content) {
-        console.log(content);
+      // window.onresize = function() {
+      //   console.log("resize!")
+      //   overlaydiv.style.width = (video.videoWidth + video.offsetWidth) + "px"
+      //   overlaydiv.style.height = (video.videoHeight + video.offsetHeight) + "px"
+      //   overlaydiv
+      // };
 
-        index = content[0] + content[1]+ content[2]+ content[3]
-        total = content[4] + content[5]+ content[6]+ content[7]
-
-        addtoarea(content.slice(8), Number(index))
-      });
-      Instascan.Camera.getCameras().then(function (cameras) {
-        if (cameras.length > 0) {
-          scanner.start(cameras[0]);
-        } else {
-          console.error('No cameras found.');
-        }
-      }).catch(function (e) {
-        console.error(e);
-      });
     </script>
   </body>
 </html>
