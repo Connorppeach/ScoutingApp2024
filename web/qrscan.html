@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <title>Instascan</title>
+    <script type="text/javascript" src="/src/instascan.min.js"></script>
+    <style>
+    #preview {
+      position: fixed;
+      top:0;
+      left:0;
+      width:50%;
+    }
+    #output {
+      position: fixed;
+      top:0;
+      right:0;
+      width:50%;
+      height:100%;
+    }
+    </style>
+ <style>
+   body {
+       background-image: url('https://marketplace.canva.com/EAD2962NKnQ/2/0/1600w/canva-rainbow-gradient-pink-and-purple-virtual-background-_Tcjok-d9b4.jpg');
+       background-size: cover;
+   }
+ </style>
+ <style>
+div.background {
+  background: url(klematis.jpg) repeat;
+  border: 2px solid black;
+}
+
+div.transbox {
+  margin: 30px;
+  background-color: #ffffff;
+    opacity: 0.5;
+}
+
+div.transbox p {
+  margin: 5%;
+  font-weight: bold;
+  color: #000000;
+}
+</style>
+  </head>
+  <body>
+    <video id="preview"></video>
+    <div class="background">
+      <div class="transbox">
+    <textarea id="output" style="border: 20px solid #f0d662; border-radius: 10px;"></textarea>
+      </div>
+</div>
+    <script type="text/javascript">
+
+      textarea = document.getElementById("output")
+
+      compdata = []
+      function addtoarea(data, index){
+        compdata[index] = data
+
+        textarea.value = ""
+
+
+        console.log(data)
+        for(i=0; i < compdata.length; i++){
+          textarea.value = textarea.value + compdata[i] + "\n"
+        }
+      }
+
+      let opts = {
+        continuous: true,
+        mirror: true,
+        video: document.getElementById('preview')
+      }
+
+      let scanner = new Instascan.Scanner(opts);
+      scanner.addListener('scan', function (content) {
+        console.log(content);
+
+        index = content[0] + content[1]+ content[2]+ content[3]
+        total = content[4] + content[5]+ content[6]+ content[7]
+
+        addtoarea(content.slice(8), Number(index))
+      });
+      Instascan.Camera.getCameras().then(function (cameras) {
+        if (cameras.length > 0) {
+          scanner.start(cameras[0]);
+        } else {
+          console.error('No cameras found.');
+        }
+      }).catch(function (e) {
+        console.error(e);
+      });
+    </script>
+  </body>
+</html>

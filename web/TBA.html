@@ -1,0 +1,138 @@
+<head>
+<link rel="stylesheet" type="text/css" href="./src/style.css" />
+</head>
+
+<body>
+<div class="topnav">
+  <a href="/">Dashboard</a>
+  <a href="/data">Data</a>
+  <a href="/matchscout">Match Scouting</a>
+  <a href="/pitscout">Pit Scouting</a>
+  <a href="/fup">File Upload</a>
+  <a href="/fdown">File Download</a>
+  <a class="active" href="/tba">TBA</a>
+</div>
+<select name="year" id="year" style="display:none;" onchange="window.location.href += '?year='+document.getElementById('year').value">
+  <option value="2020">2020</option>
+  <option value="2021">2021</option>
+  <option value="2022">2022</option>
+  <option value="2023">2023</option>
+  <option value="2024">2024</option>
+  <option value="2025">2025</option>
+</select>
+
+<button id='back' onclick="window.location.href = window.location.href.split('?')[0]">Back</button>
+
+<table id='table'></table>
+
+<script>
+
+const TBAip = "https://www.thebluealliance.com/api/v3"
+const authkey = "tjEKSZojAU2pgbs2mBt06SKyOakVhLutj3NwuxLTxPKQPLih11aCIwRIVFXKzY4e"
+
+const table = document.getElementById('table')
+
+let awaitreturn = ''
+
+function getParameterByName(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+async function getTBA(path, func){
+  const response = await fetch(TBAip+path, {
+    method: 'GET',
+    headers: {
+      'X-TBA-Auth-Key': authkey
+    }
+  });
+
+  const data = await response.json()
+  func(data)
+}
+
+year = getParameterByName('year')
+eventkey = getParameterByName('evk')
+team = getParameterByName('team')
+
+if(year == null){
+  document.getElementById('year').style.display = ""
+  document.getElementById('back').style.display = "none"
+}else if(eventkey == null){
+  getTBA("/events/"+year, function(data) {
+    let line = ''
+    line += "<tr>"
+    line += "<th>Country</th>"
+    line += "<th>City</th>"
+    line += "<th>Type</th>"
+    line += "<th>Name</th>"
+    line += "<th>Start</th>"
+    line += "<th>End</th>"
+    line += "</tr>"
+
+    for(i=0; i<data.length; i++){
+      line += "<tr onclick=\"window.location.href += '?evk=" + data[i].key + "'\">"
+      line += "<th>"+data[i].country+"</th>"
+      line += "<th>"+data[i].city+"</th>"
+      line += "<th>"+data[i].event_type_string+"</th>"
+      line += "<th>"+data[i].name+"</th>"
+      line += "<th>"+data[i].start_date+"</th>"
+      line += "<th>"+data[i].end_date+"</th>"
+      line += "</tr>"
+    }
+    console.log(line)
+    table.innerHTML = line
+    console.log(data)
+  })
+}else{
+  getTBA("/event/"+eventkey+"/matches", function(data){
+    let line = ''
+    line += "<tr>"
+    line += "<th>key</th>"
+    line += "<th>Red 1</th>"
+    line += "<th>Red 2</th>"
+    line += "<th>Red 3</th>"
+    line += "<th>Blue 1</th>"
+    line += "<th>Blue 2</th>"
+    line += "<th>Blue 3</th>"
+    line += "</th>"
+
+    console.log(data)
+
+    alliances = []
+
+    for(i=0; i<data.length; i++){
+      if(data[i].comp_level != "qm"){continue}
+
+      alliances[data[i].key.split('qm')[self.length+1]] = {
+        key: data[i].key,
+        red: data[i].alliances.red.team_keys,
+        blue: data[i].alliances.blue.team_keys
+      }
+    }
+
+    console.log(alliances)
+    
+    for(i=1; i<alliances.length; i++){
+      console.log(i)
+      line += "<tr>"
+      line += "<th>"+alliances[i].key+"</th>"
+      line += "<th class='red'> "+alliances[i].red[0]+" </th>"
+      line += "<th class='red'> "+alliances[i].red[1]+" </th>"
+      line += "<th class='red'> "+alliances[i].red[2]+" </th>"
+      line += "<th class='blue'> "+alliances[i].blue[0]+" </th>"
+      line += "<th class='blue'> "+alliances[i].blue[1]+" </th>"
+      line += "<th class='blue'> "+alliances[i].blue[2]+" </th>"
+      line += "</th>"
+    }
+    table.innerHTML = line
+  })
+}
+
+
+</script>
+</body>

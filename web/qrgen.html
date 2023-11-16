@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Instascan</title>
+    <!-- https://github.com/davidshimjs/qrcodejs -->
+    <script type="text/javascript" src="./src/qrcode.js"></script>
+  </head>
+  <body>
+    <div style="width:100%;height:auto;" id="qrcode"></div>
+    <p id="percentage"></p>
+    <script type="text/javascript">
+
+    //compdata = getParameterByName('d')
+    compdata = "isehrklnvsiuergvnkjhsrvwrgvs"
+
+    compdata = compdata.match(/.{1,5}/g)
+    index = -1
+
+    const qrcodediv = document.getElementById("qrcode")
+
+    function setQrCode(data) {
+      console.log(data)
+      document.getElementById('qrcode').innerHTML = new QRCode({
+        content: data,
+        padding: 1,
+        width: 256,
+        height: 256,
+        color: "#000000",
+        background: "#ffffff",
+        ecl: "M",
+      }).svg()
+
+    }
+
+    function getParameterByName(name, url = window.location.href) {
+      name = name.replace(/[\[z\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    function increment() {
+      index++
+      if(index > compdata.length-1){
+        index = 0
+      }
+      str1 = String(index).padStart(4,'0')
+      str2 = String(compdata.length-1).padStart(4,'0')
+      setQrCode(str1+str2+compdata[index])
+      document.getElementById('percentage').innerText = str1+"/"+str2
+    }
+
+    increment()
+    setInterval(() => {
+      increment()
+    }, 200)
+
+    </script>
+  </body>
+</html>
