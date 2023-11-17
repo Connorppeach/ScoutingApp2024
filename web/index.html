@@ -3,6 +3,7 @@
 <head>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
 <link rel="stylesheet" type="text/css" href="./src/style.css" />
+<script type="text/javascript" src="/src/utils.js"></script>
 
 
 </head>
@@ -13,37 +14,16 @@
   <a href="/data">Data</a>
   <a href="/matchscout">Match Scouting</a>
   <a href="/pitscout">Pit Scouting</a>
-  <a href="/fup">File Upload</a>
-  <a href="/fdown">File Download</a>
+  <a href="/fileupload">File Upload</a>
+  <a href="/qrscan">File Download</a>
   <a href="/tba">TBA</a>
 </div>
 
 
 <script>
-  var ws = new WebSocket("ws://"+window.location.href.split('/')[2]+"/ws");
-  
-  
-  ws.onopen = function(e) {
-    console.log("[open] Connection established");
-  };
-  
-  ws.onmessage = function(event) {
-    console.log(`[message] Data received from server: ${event.data}`);
-  };
-  
-  ws.onclose = function(event) {
-    if (event.wasClean) {
-      console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-    } else {
-      // e.g. server process killed or network down
-      // event.code is usually 1006 in this case
-      console.log('[close] Connection died');
-    }
-  };
-  
-  ws.onerror = function(error) {
-    console.log(error)
-  }
+  onOpen(function(){
+    console.log(123)
+  })
   
 </script>
     

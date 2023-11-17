@@ -1,5 +1,6 @@
 <head>
 <link rel="stylesheet" type="text/css" href="./src/style.css" />
+<script type="text/javascript" src="/src/utils.js"></script>
 </head>
 
 <body>
@@ -8,7 +9,7 @@
   <a href="/data">Data</a>
   <a href="/matchscout">Match Scouting</a>
   <a href="/pitscout">Pit Scouting</a>
-  <a href="/fup">File Upload</a>
+  <a href="/fileupload">File Upload</a>
   <a href="/fdown">File Download</a>
   <a class="active" href="/tba">TBA</a>
 </div>
@@ -22,17 +23,17 @@
 </select>
 
 <button id='back' onclick="window.location.href = window.location.href.split('?')[0]">Back</button>
-
 <table id='table'></table>
+<button id='save' onclick=""></button>
+
 
 <script>
 
 const TBAip = "https://www.thebluealliance.com/api/v3"
 const authkey = "tjEKSZojAU2pgbs2mBt06SKyOakVhLutj3NwuxLTxPKQPLih11aCIwRIVFXKzY4e"
-
 const table = document.getElementById('table')
 
-let awaitreturn = ''
+let alliances = []
 
 function getParameterByName(name, url = window.location.href) {
     name = name.replace(/[\[\]]/g, '\\$&');
@@ -53,6 +54,12 @@ async function getTBA(path, func){
 
   const data = await response.json()
   func(data)
+}
+
+onOpen(function(){})
+
+function sendToServer(json){
+  ws.send("NewMatch§"+JSON.stringify(alliances))
 }
 
 year = getParameterByName('year')
@@ -84,9 +91,7 @@ if(year == null){
       line += "<th>"+data[i].end_date+"</th>"
       line += "</tr>"
     }
-    console.log(line)
     table.innerHTML = line
-    console.log(data)
   })
 }else{
   getTBA("/event/"+eventkey+"/matches", function(data){
@@ -130,6 +135,7 @@ if(year == null){
       line += "</th>"
     }
     table.innerHTML = line
+    
   })
 }
 

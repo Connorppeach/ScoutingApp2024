@@ -49,3 +49,49 @@ table, tr, th, td {
 .blue {
   background-color: #6161ff;
 }
+
+#qr{
+  position: fixed;
+  left:0;
+  width:95vh;
+}
+#indicator {
+  position: fixed;
+  bottom: 0;
+  left: 98vh;
+  font-size: 5vh;
+}
+#qrspeed {
+  position: fixed;
+  left: 98vh;
+  top: 5vh;
+  height: 75vh;
+}
+#qrsize {
+  position: fixed;
+  left: 103vh;
+  top: 5vh;
+  height: 75vh;
+}
+
+#qrbar {
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  overflow: auto;
+  height:48px;
+  background-color: #333;
+}
+.qrbarfalse {
+  float: left;
+  background-color: red;
+  height:100%;
+  width:3px;
+}
+.qrbartrue {
+  float: left;
+  background-color: lime;
+  height:100%;
+  width:3px;
+}

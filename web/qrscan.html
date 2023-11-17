@@ -72,7 +72,7 @@ div.transbox p {
       <a href="/data">Data</a>
       <a href="/matchscout">Match Scouting</a>
       <a href="/pitscout">Pit Scouting</a>
-      <a href="/fup">File Upload</a>
+      <a href="/fileupload">File Upload</a>
       <a class="active" href="/fdown">File Download</a>
       <a href="/tba">TBA</a>
     </div>
@@ -80,6 +80,8 @@ div.transbox p {
       <video id="preview"></video>
       <p id="mostrecentscan"></p>
       <p id="qrindex"></p>
+      <div id="qrbar"></div>
+      
     </div>
     
     
@@ -89,10 +91,11 @@ div.transbox p {
       //textarea.value = ""
       mostrecentscan = getel('mostrecentscan')
       qrindex = getel('qrindex')
-
+      qrbar = getel('qrbar')
 
       compdata = []
       prevcount = 0
+      previndex = -1
 
       function addtoarea(data){
         index = parseInt(data.split("•")[0], 36)
@@ -104,30 +107,33 @@ div.transbox p {
         if(compdata[index] != data){
           if(count != prevcount){
             prevcount = count
+            qrbar.innerHTML = ""
+            for(i=0; i < count;i++){
+              pixels = window.innerWidth/count
+              qrbar.innerHTML += '<div class="qrbarfalse" style="width:' + pixels +'px"></div>'
+            }
+
             compdata = []
+
           }
+          qrbar.children[index].className = "qrbartrue"
           compdata[index] = data
-        }
 
-        if(!compdata.includes(undefined)){
-          alert("Finished!")
-        }
-
-        //textarea.value = "" 
-        for(i=0; i < compdata.length; i++){
-          //textarea.value = textarea.value + compdata[i]
+          if(!compdata.includes(undefined)){
+            console.log("Finished!")
+          }
         }
       }
 
       const qrScanner = new QrScanner(
         getel("preview"),
-        result => addtoarea(result.data),
-         {
+        result => addtoarea(result.data), {
           highlightScanRegion: true,
           highlightCodeOutline: true,
+          maxScansPerSecond: 500
          },
-      );
-      qrScanner.start();
+      )
+      qrScanner.start()
 
       function getel(str){return document.getElementById(str)}
 

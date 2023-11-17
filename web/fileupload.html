@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
+<link rel="stylesheet" type="text/css" href="./src/style.css" />
+<script type="text/javascript" src="/src/utils.js"></script>
+
+
+</head>
+
+<body>
+<div class="topnav">
+  <a  href="/">Dashboard</a>
+  <a href="/data">Data</a>
+  <a href="/matchscout">Match Scouting</a>
+  <a href="/pitscout">Pit Scouting</a>
+  <a class="active" href="/fileupload">File Upload</a>
+  <a href="/qrscan">File Download</a>
+  <a href="/tba">TBA</a>
+</div>
+
+<select name="matches" id="matches" onchange="listFileOfMatch(matchdropdown.value)"></select>
+
+<table id='table' style="display:none;"></table>
+
+<script>
+  matchdropdown = getel('matches')
+
+  onOpen(function(){
+    ws.send("getMatches")
+  })
+
+  onMessage(function(event){
+    if(event.data == ""){return}
+
+    data = event.data.split('§')
+    switch(data[0]){
+      case "Matches":
+        matches = data[1].split('•')
+        line = ""
+        for(i=0; i<matches.length;i++){
+          line += `<option value="${matches[i]}">${matches[i]}</option>`
+        }
+        matchdropdown.innerHTML = line
+    }
+  })
+
+  function listFileOfMatch(match){
+    matchdropdown.style.display = "none"
+    
+  }
+
+  function getel(str){return document.getElementById(str)}
+  
+</script>
+    
+</body>
+</html>
