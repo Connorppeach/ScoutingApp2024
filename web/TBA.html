@@ -23,9 +23,8 @@
 </select>
 
 <button id='back' onclick="window.location.href = window.location.href.split('?')[0]">Back</button>
+<button id='save' onclick="">Save</button>
 <table id='table'></table>
-<button id='save' onclick=""></button>
-
 
 <script>
 
@@ -58,13 +57,12 @@ async function getTBA(path, func){
 
 onOpen(function(){})
 
-function sendToServer(json){
-  ws.send("NewMatch§"+JSON.stringify(alliances))
-}
-
 year = getParameterByName('year')
 eventkey = getParameterByName('evk')
-team = getParameterByName('team')
+
+function sendToServer(){
+  ws.send("writeToFile§"+ eventkey +"§match.json§"+JSON.stringify(alliances))
+}
 
 if(year == null){
   document.getElementById('year').style.display = ""
@@ -113,7 +111,7 @@ if(year == null){
     for(i=0; i<data.length; i++){
       if(data[i].comp_level != "qm"){continue}
 
-      alliances[data[i].key.split('qm')[self.length+1]] = {
+      alliances[data[i].key.split('qm')[self.length+1]-1] = {
         key: data[i].key,
         red: data[i].alliances.red.team_keys,
         blue: data[i].alliances.blue.team_keys

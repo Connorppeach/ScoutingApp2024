@@ -19,12 +19,16 @@
   <a href="/tba">TBA</a>
 </div>
 
-<select name="matches" id="matches" onchange="listFileOfMatch(matchdropdown.value)"></select>
-
+<select id="matchdropdown" onchange="listFileOfMatch()">
+  <option disabled selected value> -- select an option -- </option>
+</select>
+<button id="loadbutton" style="display:none;" onclick="getData()">Load</button>
 <table id='table' style="display:none;"></table>
 
 <script>
-  matchdropdown = getel('matches')
+  matchdropdown = getel('matchdropdown')
+  table = getel('table')
+  loadbutton = getel('loadbutton')
 
   onOpen(function(){
     ws.send("getMatches")
@@ -35,19 +39,44 @@
 
     data = event.data.split('§')
     switch(data[0]){
-      case "Matches":
+      case "MatchList":
         matches = data[1].split('•')
         line = ""
         for(i=0; i<matches.length;i++){
           line += `<option value="${matches[i]}">${matches[i]}</option>`
         }
-        matchdropdown.innerHTML = line
+        matchdropdown.innerHTML += line
+        break;
+      case "MatchFileList":
+        files = data[2].split('•')
+        line = "<tr>"
+        line += "<th></th>"
+        line += "<th>File</th>"
+        line += "</tr>"
+        for(i=0;i<files.length;i++){
+          line += "<tr>"
+          line += "<th><input type='checkbox'></th>"
+          line += `<th>${files[i]}</th>`
+          line += "</tr>"
+        }
+        table.innerHTML = line
+        table.style.display = ""
+        loadbutton.style.display = ""
+
+        break
+      default:
+        console.log(event.data)
+        break;
     }
   })
 
-  function listFileOfMatch(match){
+  function listFileOfMatch(){
     matchdropdown.style.display = "none"
-    
+    ws.send("getFilesInMatch§"+matchdropdown.value)
+  }
+
+  function getData(){
+
   }
 
   function getel(str){return document.getElementById(str)}

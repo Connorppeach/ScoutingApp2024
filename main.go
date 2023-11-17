@@ -1,11 +1,6 @@
 package main
 
 import (
-	//"net/http"
-
-	//"io"
-	//"os"
-
 	"log"
 	"os"
 	"strings"
@@ -23,26 +18,6 @@ const datadir = "./data/"
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-}
-
-type Match struct {
-	red1  string
-	red2  string
-	red3  string
-	blue1 string
-	blue2 string
-	blue3 string
-}
-
-type Event struct {
-	Title   string
-	key     string
-	matches Match
-}
-
-type MatchResults struct {
-	winteam      bool
-	pointsScored int
 }
 
 func parseError(err error) {
@@ -121,13 +96,28 @@ func main() {
 			}
 
 			println("Message:" + string(message))
-			var splitstring = strings.Split(string(message), "§")[0]
+			var splitstring = strings.Split(string(message), "§")
 
-			switch splitstring {
+			switch splitstring[0] {
 			case "getMatches":
-				conn.WriteMessage(mt, []byte("Matches§"+strings.Join(getMatchDirs(), "•")))
+				conn.WriteMessage(mt, []byte("MatchList§"+strings.Join(getMatchDirs(), "•")))
 			case "getFilesInMatch":
-				//fmt.Println(getFileInMatchDir())
+				conn.WriteMessage(mt, []byte("MatchFileList§"+splitstring[1]+"§"+strings.Join(getFileInMatchDir(splitstring[1]), "•")))
+			case "readFromFile":
+				data, err := os.ReadFile(datadir+splitstring[1]+"/"+splitstring[2])
+				if err != nil {
+					log.Fatal(err)
+					conn.WriteMessage(mt, []byte("MatchFileContent§"+splitstring[1]+"§"+splitstring[2]+"§false"))
+				}else{
+					conn.WriteMessage(mt, []byte("MatchFileContent§"+splitstring[1]+"§"+splitstring[2]+"§"+string(data)))
+				}
+			case "writeToFile":
+				makedir(datadir) //No exploits here! 
+				os.Chmod(datadir, 0755) //Directory transversal is definitly not real!
+				makedir(datadir + splitstring[1])
+				os.Chmod(datadir + splitstring[1], 0755)
+				err = os.WriteFile(datadir+splitstring[1]+"/"+splitstring[2], []byte(splitstring[3]), 0755)
+				parseError(err)
 			default:
 				conn.WriteMessage(mt, []byte("Malformed Message"))
 			}
@@ -152,6 +142,6 @@ func main() {
 	r.StaticFile("/src/qr.js", "./web/src/qr.js")
 	r.StaticFile("/src/style.css", "./web/src/style.css")
 
-	r.Run(":80")
+	r.Run(":4388")
 
 }
