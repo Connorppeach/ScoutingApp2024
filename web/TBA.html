@@ -1,19 +1,24 @@
 <head>
 <link rel="stylesheet" type="text/css" href="./src/style.css" />
+<script src="/src/jsonpack.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
+<style>
+  #indicator {
+    display:inline
+  }
+</style>
 </head>
-
 <body>
 <div class="topnav">
-  <a href="/">Dashboard</a>
-  <a href="/data">Data</a>
+  <a href="/">Data</a>
   <a href="/matchscout">Match Scouting</a>
   <a href="/pitscout">Pit Scouting</a>
-  <a href="/fileupload">File Upload</a>
-  <a href="/fdown">File Download</a>
-  <a class="active" href="/tba">TBA</a>
+  <a href="/fileupload">Send</a>
+  <a href="/qrscan">Scan</a>
+  <a class="active" href="/tba">Init</a>
 </div>
-<select name="year" id="year" style="display:none;" onchange="window.location.href += '?year='+document.getElementById('year').value">
+<select name="year" id="year" onchange="year = getel('year').value; getEventsByYear()">
+  <option disabled selected value> -- select an option -- </option>
   <option value="2020">2020</option>
   <option value="2021">2021</option>
   <option value="2022">2022</option>
@@ -22,26 +27,16 @@
   <option value="2025">2025</option>
 </select>
 
-<button id='back' onclick="window.location.href = window.location.href.split('?')[0]">Back</button>
-<button id='save' onclick="">Save</button>
+<button id='back' onclick="window.location.reload(false)">Back</button>
+<button id='save' onclick="sendToServer()">Save</button>
+<p id="indicator"></p>
 <table id='table'></table>
 
 <script>
 
 const TBAip = "https://www.thebluealliance.com/api/v3"
 const authkey = "tjEKSZojAU2pgbs2mBt06SKyOakVhLutj3NwuxLTxPKQPLih11aCIwRIVFXKzY4e"
-const table = document.getElementById('table')
-
-let alliances = []
-
-function getParameterByName(name, url = window.location.href) {
-    name = name.replace(/[\[\]]/g, '\\$&');
-    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
+const table = getel('table')
 
 async function getTBA(path, func){
   const response = await fetch(TBAip+path, {
@@ -52,22 +47,28 @@ async function getTBA(path, func){
   });
 
   const data = await response.json()
+  console.log(data)
   func(data)
 }
 
 onOpen(function(){})
 
-year = getParameterByName('year')
-eventkey = getParameterByName('evk')
+let alliances = []
+let matchdata
+let year
+let eventkey
 
 function sendToServer(){
-  ws.send("writeToFile§"+ eventkey +"§match.json§"+JSON.stringify(alliances))
+  ws.send("writeToFile§"+ eventkey +"§match.jsonpack§"+jsonpack.pack(alliances))
+  alert("Saved!")
 }
 
-if(year == null){
-  document.getElementById('year').style.display = ""
-  document.getElementById('back').style.display = "none"
-}else if(eventkey == null){
+getel('year').selectedIndex = 0
+getel('save').style.display = "none"
+getel('back').style.display = "none"
+
+function getEventsByYear(){
+  getel('year').style.display = "none"
   getTBA("/events/"+year, function(data) {
     let line = ''
     line += "<tr>"
@@ -79,8 +80,8 @@ if(year == null){
     line += "<th>End</th>"
     line += "</tr>"
 
-    for(i=0; i<data.length; i++){
-      line += "<tr onclick=\"window.location.href += '?evk=" + data[i].key + "'\">"
+    for(i=0; i < data.length; i++){
+      line += `<tr onclick="eventkey='${data[i].key}';getMatchesByEvent()">`
       line += "<th>"+data[i].country+"</th>"
       line += "<th>"+data[i].city+"</th>"
       line += "<th>"+data[i].event_type_string+"</th>"
@@ -90,8 +91,13 @@ if(year == null){
       line += "</tr>"
     }
     table.innerHTML = line
+    getel('table').style.display = ""
+    getel('back').style.display = ""
+    window.scrollTo(0, 0)
   })
-}else{
+}
+
+function getMatchesByEvent(){
   getTBA("/event/"+eventkey+"/matches", function(data){
     let line = ''
     line += "<tr>"
@@ -103,8 +109,6 @@ if(year == null){
     line += "<th>Blue 2</th>"
     line += "<th>Blue 3</th>"
     line += "</th>"
-
-    console.log(data)
 
     alliances = []
 
@@ -120,8 +124,7 @@ if(year == null){
 
     console.log(alliances)
     
-    for(i=1; i<alliances.length; i++){
-      console.log(i)
+    for(i=0; i<alliances.length; i++){
       line += "<tr>"
       line += "<th>"+alliances[i].key+"</th>"
       line += "<th class='red'> "+alliances[i].red[0]+" </th>"
@@ -133,10 +136,13 @@ if(year == null){
       line += "</th>"
     }
     table.innerHTML = line
-    
+    getel('save').style.display = ""
+    window.scrollTo(0, 0) 
   })
 }
 
+async function getTeamData(){
+}
 
 </script>
 </body>

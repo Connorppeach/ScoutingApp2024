@@ -4,5 +4,4 @@
 
 ## DEVELOPING
 to activate the development enviroment use
-$ source env.sh
-in the /tools directory of the project
+$ "./tools/env.sh"

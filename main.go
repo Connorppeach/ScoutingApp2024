@@ -39,16 +39,6 @@ func makedir(path string) bool {
 	return false
 }
 
-// func initMatch(name string, data Event) {
-// 	files, err := os.ReadDir("/tmp/")
-// 	parseError(err)
-
-// 	for _, file := range files {
-// 		fmt.Println(file.Name(), file.IsDir())
-// 	}
-
-// }
-
 func getMatchDirs() []string {
 	files, err := os.ReadDir(datadir)
 	if err != nil {
@@ -80,6 +70,9 @@ func getFileInMatchDir(name string) []string {
 func main() {
 	r := gin.Default()
 
+	makedir(datadir)
+	os.Chmod(datadir, 0755)
+
 	r.GET("/ws", func(c *gin.Context) {
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
@@ -104,18 +97,16 @@ func main() {
 			case "getFilesInMatch":
 				conn.WriteMessage(mt, []byte("MatchFileList§"+splitstring[1]+"§"+strings.Join(getFileInMatchDir(splitstring[1]), "•")))
 			case "readFromFile":
-				data, err := os.ReadFile(datadir+splitstring[1]+"/"+splitstring[2])
+				data, err := os.ReadFile(datadir + splitstring[1] + "/" + splitstring[2])
 				if err != nil {
 					log.Fatal(err)
 					conn.WriteMessage(mt, []byte("MatchFileContent§"+splitstring[1]+"§"+splitstring[2]+"§false"))
-				}else{
+				} else {
 					conn.WriteMessage(mt, []byte("MatchFileContent§"+splitstring[1]+"§"+splitstring[2]+"§"+string(data)))
 				}
 			case "writeToFile":
-				makedir(datadir) //No exploits here! 
-				os.Chmod(datadir, 0755) //Directory transversal is definitly not real!
-				makedir(datadir + splitstring[1])
-				os.Chmod(datadir + splitstring[1], 0755)
+				makedir(datadir + splitstring[1])      //No exploits here!
+				os.Chmod(datadir+splitstring[1], 0755) //Directory transversal is definitely not real!
 				err = os.WriteFile(datadir+splitstring[1]+"/"+splitstring[2], []byte(splitstring[3]), 0755)
 				parseError(err)
 			default:
@@ -134,6 +125,10 @@ func main() {
 	r.StaticFile("/qrgen", "./web/qrgen.html")
 	r.StaticFile("/fileupload", "./web/fileupload.html")
 	r.StaticFile("/tba", "./web/TBA.html")
+
+	r.StaticFile("/jsonpack", "./web/jsonpack.html")
+	r.StaticFile("/src/jsonpack.js", "./web/src/jsonpack.js")
+
 
 	r.StaticFile("/src/utils.js", "./web/src/utils.js")
 	r.StaticFile("/src/qr-scanner.umd.min.js", "./web/src/qr-scanner.umd.min.js")

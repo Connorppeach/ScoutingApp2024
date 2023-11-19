@@ -3,95 +3,65 @@
   <head>
     
     <title>Instascan</title>
+    <script type="text/javascript" src="/src/utils.js"></script>
+    <script src="/src/jsonpack.js"></script>
     <script src="/src/qr-scanner.umd.min.js"></script>
     <link rel="stylesheet" type="text/css" href="./src/style.css" />
     <style>
     svg {
       z-index: 5;
     }
-    #overlaydiv {
-      position: relative;
-      z-index: 10;
-      color: #059100;
-      margin: 0 auto;
-    }
-    #overlaydiv:before {
-      content: '';
-      position: absolute;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 5px;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
+    body {
+      background-color: #1d1d1d;
     }
     #preview {
+      position: fixed;
       width: 100%;
-      display: block;
-      width:100%;
-      max-height: 100vh;
+      height: calc(100vh - 96px);
+      max-height: calc(100vh - 96px);
+      bottom: 48px;
     }
     #mostrecentscan{
       position: absolute;
-      top:10px;
+      background-color: #1d1d1d;
+      color: #059100;
+      top:58px;
       right:10px;
       width:20vw;
+      word-wrap:anywhere;
     }
     #qrindex {
 
     }
+
     </style>
  <style>
-   body {
-       background-image: url('https://marketplace.canva.com/EAD2962NKnQ/2/0/1600w/canva-rainbow-gradient-pink-and-purple-virtual-background-_Tcjok-d9b4.jpg');
-       background-size: cover;
-   }
- </style>
- <style>
-div.background {
-  background: url(klematis.jpg) repeat;
-  border: 2px solid black;
-}
 
-div.transbox {
-  margin: 30px;
-  background-color: #ffffff;
-    opacity: 0.5;
-}
-
-div.transbox p {
-  margin: 5%;
-  font-weight: bold;
-  color: #000000;
-}
 </style>
   </head>
   <body>
     <div class="topnav">
-      <a href="/">Dashboard</a>
-      <a href="/data">Data</a>
+      <a href="/">Data</a>
       <a href="/matchscout">Match Scouting</a>
       <a href="/pitscout">Pit Scouting</a>
-      <a href="/fileupload">File Upload</a>
-      <a class="active" href="/fdown">File Download</a>
+      <a href="/fileupload">Send</a>
+      <a class="active" href="/qrscan">Scan</a>
       <a href="/tba">TBA</a>
     </div>
-    <div id="overlaydiv">
-      <video id="preview"></video>
-      <p id="mostrecentscan"></p>
-      <p id="qrindex"></p>
-      <div id="qrbar"></div>
-      
-    </div>
+    <video id="preview"></video>
+    <p id="mostrecentscan"></p>
+    <p id="qrindex"></p>
+    <div id="qrbar"></div>
+    <canvas id="canvas" style="display: none"></canvas>
     
     
     <script type="text/javascript">
 
       //textarea = document.getElementById("output")
       //textarea.value = ""
-      mostrecentscan = getel('mostrecentscan')
-      qrindex = getel('qrindex')
-      qrbar = getel('qrbar')
+      const mostrecentscan = getel('mostrecentscan')
+      const qrindex = getel('qrindex')
+      const qrbar = getel('qrbar')
 
       compdata = []
       prevcount = 0
@@ -102,27 +72,40 @@ div.transbox p {
         count = parseInt(data.split("•")[1], 36)
         data = data.split("•")[2]
 
-        mostrecentscan.innerText = data
+        
 
         if(compdata[index] != data){
+          mostrecentscan.innerText = data
           if(count != prevcount){
             prevcount = count
             qrbar.innerHTML = ""
             for(i=0; i < count;i++){
-              pixels = window.innerWidth/count
-              qrbar.innerHTML += '<div class="qrbarfalse" style="width:' + pixels +'px"></div>'
+              width = (100/count)*(6/10)
+              margin = (100/count)*(2/10)
+              qrbar.innerHTML += `<div class="qrbarfalse" style="width:${width}%;margin-left:${margin}%;margin-right:${margin}%;"></div>`
             }
 
             compdata = []
 
           }
-          qrbar.children[index].className = "qrbartrue"
           compdata[index] = data
 
           if(!compdata.includes(undefined)){
             console.log("Finished!")
+            console.log(compdata.join(''))
+            sendData()
           }
         }
+        try{
+          if(qrbar.children[index] != null){
+            if(previndex != -1){
+              qrbar.children[previndex].className = "qrbartrue"
+            }
+            previndex = index
+            qrbar.children[index].className = "qrbartruesel"
+          }
+        }
+        catch{}
       }
 
       const qrScanner = new QrScanner(
@@ -130,20 +113,39 @@ div.transbox p {
         result => addtoarea(result.data), {
           highlightScanRegion: true,
           highlightCodeOutline: true,
-          maxScansPerSecond: 500
+          alsoTryWithoutScanRegion: true,
+          maxScansPerSecond: 250,
+          scanRegion: {
+            width:500,
+            height:500
+          },
+          qrEngine: QrScanner.createQrEngine(QrScanner.WORKER_PATH),
+          onDecodeError: function(e){
+            console.log(e)
+          }
          },
       )
+      qrScanner.$canvas = getel('canvas')
       qrScanner.start()
+
+      async function sendData(){
+        finaldata = compdata.join("").split("§")[2].split("×")
+        const folderName = compdata.join("").split("§")[1]
+        mostrecentscan.innerText = "Finished!\nFiles:\n"
+        for(i=0;i<finaldata.length;i++){
+          filename = finaldata[i].split("‹")[0]
+          filedata = finaldata[i].split("‹")[1]
+          mostrecentscan.innerText += folderName + "/" + filename + "\n"
+          outputdata = "writeToFile§"+folderName+"§"+filename+"§"+filedata
+          ws.send(outputdata)
+          //console.log(outputdata)
+          await sleep(300)
+        }
+      }
 
       function getel(str){return document.getElementById(str)}
 
-      overlaydiv = getel('overlaydiv')
-      video = getel('preview')
-
-      function resizeOverlay(){
-
-      }
-
+        
       // window.onresize = function() {
       //   console.log("resize!")
       //   overlaydiv.style.width = (video.videoWidth + video.offsetWidth) + "px"

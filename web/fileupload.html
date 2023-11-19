@@ -1,34 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
+
 <link rel="stylesheet" type="text/css" href="./src/style.css" />
 <script type="text/javascript" src="/src/utils.js"></script>
-
-
+<script src="/src/jsonpack.js"></script>
+<style>
+  #indicator {
+    display:inline
+  }
+</style>
 </head>
 
 <body>
 <div class="topnav">
-  <a  href="/">Dashboard</a>
-  <a href="/data">Data</a>
+  <a href="/">Data</a>
   <a href="/matchscout">Match Scouting</a>
   <a href="/pitscout">Pit Scouting</a>
-  <a class="active" href="/fileupload">File Upload</a>
-  <a href="/qrscan">File Download</a>
-  <a href="/tba">TBA</a>
+  <a class="active" href="/fileupload">Send</a>
+  <a href="/qrscan">Scan</a>
+  <a href="/tba">Init</a>
 </div>
 
 <select id="matchdropdown" onchange="listFileOfMatch()">
   <option disabled selected value> -- select an option -- </option>
 </select>
 <button id="loadbutton" style="display:none;" onclick="getData()">Load</button>
+<p id="indicator">Getting Matches...</p>
 <table id='table' style="display:none;"></table>
+<iframe id='iframe' style="display:none;"></iframe>
 
 <script>
-  matchdropdown = getel('matchdropdown')
-  table = getel('table')
-  loadbutton = getel('loadbutton')
+  const matchdropdown = getel('matchdropdown')
+  const table = getel('table')
+  const loadbutton = getel('loadbutton')
+  const iframe = getel('iframe')
+  const indicator = getel('indicator')
+
+  let filenames = []
+  let returnData = []
 
   onOpen(function(){
     ws.send("getMatches")
@@ -37,7 +47,7 @@
   onMessage(function(event){
     if(event.data == ""){return}
 
-    data = event.data.split('§')
+    let data = event.data.split('§')
     switch(data[0]){
       case "MatchList":
         matches = data[1].split('•')
@@ -46,6 +56,7 @@
           line += `<option value="${matches[i]}">${matches[i]}</option>`
         }
         matchdropdown.innerHTML += line
+        indicator.innerText = ""
         break;
       case "MatchFileList":
         files = data[2].split('•')
@@ -55,14 +66,34 @@
         line += "</tr>"
         for(i=0;i<files.length;i++){
           line += "<tr>"
-          line += "<th><input type='checkbox'></th>"
+          line += `<th><input type='checkbox' onChange='toggleFile("${files[i]}")'></th>`
           line += `<th>${files[i]}</th>`
           line += "</tr>"
         }
         table.innerHTML = line
         table.style.display = ""
         loadbutton.style.display = ""
-
+        indicator.innerText = ""
+        
+        break
+      case "MatchFileContent":
+        returnData.push(data[3])
+        if(returnData.length == filenames.length){
+          table.style.display = "none"
+          loadbutton.style.display = "none"
+          iframe.style.display = ""
+          iframe.src = "/qrgen"
+          iframe.onload = function() {
+            let filedata = "MatchFileContent§"+matchdropdown.value+"§"
+            for(i=0;i<returnData.length;i++){
+              filedata += filenames[i]+"‹"+returnData[i]
+              if(i+1 != returnData.length){
+                filedata += "×"
+              }
+            }
+            iframe.contentWindow.compdata = filedata
+          }
+        }
         break
       default:
         console.log(event.data)
@@ -71,15 +102,29 @@
   })
 
   function listFileOfMatch(){
+    indicator.innerText = `Getting files of: ${matchdropdown.value}`
     matchdropdown.style.display = "none"
     ws.send("getFilesInMatch§"+matchdropdown.value)
   }
 
-  function getData(){
-
+  function toggleFile(str){
+    const index = filenames.indexOf(str)
+    if(index > -1){
+      filenames.remove(str)
+    }else{
+      filenames.push(str)
+    }
   }
-
-  function getel(str){return document.getElementById(str)}
+  
+  async function getData(){
+    returnData = []
+    for(i=0;i<filenames.length;i++){
+      indicator.innerText = `Getting filedata: ${filenames[i]}`
+      ws.send("readFromFile§"+matchdropdown.value+"§"+filenames[i])
+      await sleep(300);
+    }
+    
+  }
   
 </script>
     

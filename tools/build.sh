@@ -1,1 +1,1 @@
-./go/bin/go build scouting/app/main
+go build scouting/app/main
