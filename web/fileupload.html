@@ -3,6 +3,7 @@
 <head>
 
 <link rel="stylesheet" type="text/css" href="./src/style.css" />
+<script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <script src="/src/jsonpack.js"></script>
 <style>
@@ -25,8 +26,10 @@
 <select id="matchdropdown" onchange="listFileOfMatch()">
   <option disabled selected value> -- select an option -- </option>
 </select>
-<button id="loadbutton" style="display:none;" onclick="getData()">Load</button>
 <p id="indicator">Getting Matches...</p>
+<button id="loadbutton" style="display:none;" onclick="getDataQrcode()">Send via qr codes</button><br>
+<input placeholder="ws://[Scouting Laptop IP]:4388" id="LoadWifiButton" style="display:none;" ></input>
+<button id="loadQrbutton" style="display:none;" onclick="getDataQrcode()">Send via wifi</button>
 <table id='table' style="display:none;"></table>
 <iframe id='iframe' style="display:none;"></iframe>
 
@@ -41,70 +44,62 @@
   let returnData = []
 
   onOpen(function(){
-    ws.send("getMatches")
+    socket.emit("getMatches")
   })
 
-  onMessage(function(event){
-    if(event.data == ""){return}
+  socket.on('MatchList', (data)=>{
+    matches = data.split('•')
+    line = ""
+    for(i=0; i<matches.length;i++){
+      line += `<option value="${matches[i]}">${matches[i]}</option>`
+    }
+    matchdropdown.innerHTML += line
+    indicator.innerText = ""
+  })
 
-    let data = event.data.split('§')
-    switch(data[0]){
-      case "MatchList":
-        matches = data[1].split('•')
-        line = ""
-        for(i=0; i<matches.length;i++){
-          line += `<option value="${matches[i]}">${matches[i]}</option>`
-        }
-        matchdropdown.innerHTML += line
-        indicator.innerText = ""
-        break;
-      case "MatchFileList":
-        files = data[2].split('•')
-        line = "<tr>"
-        line += "<th></th>"
-        line += "<th>File</th>"
-        line += "</tr>"
-        for(i=0;i<files.length;i++){
-          line += "<tr>"
-          line += `<th><input type='checkbox' onChange='toggleFile("${files[i]}")'></th>`
-          line += `<th>${files[i]}</th>`
-          line += "</tr>"
-        }
-        table.innerHTML = line
-        table.style.display = ""
-        loadbutton.style.display = ""
-        indicator.innerText = ""
-        
-        break
-      case "MatchFileContent":
-        returnData.push(data[3])
-        if(returnData.length == filenames.length){
-          table.style.display = "none"
-          loadbutton.style.display = "none"
-          iframe.style.display = ""
-          iframe.src = "/qrgen"
-          iframe.onload = function() {
-            let filedata = "MatchFileContent§"+matchdropdown.value+"§"
-            for(i=0;i<returnData.length;i++){
-              filedata += filenames[i]+"‹"+returnData[i]
-              if(i+1 != returnData.length){
-                filedata += "×"
-              }
-            }
-            iframe.contentWindow.compdata = filedata
+  socket.on('MatchFileList', (data)=>{
+    files = data.split('•')
+    line = "<tr>"
+    line += "<th></th>"
+    line += "<th>File</th>"
+    line += "</tr>"
+    for(i=0;i<files.length;i++){
+      line += "<tr>"
+      line += `<th><input type='checkbox' onChange='toggleFile("${files[i]}")'></th>`
+      line += `<th>${files[i]}</th>`
+      line += "</tr>"
+    }
+    table.innerHTML = line
+    table.style.display = ""
+    loadbutton.style.display = ""
+    indicator.innerText = ""
+  })
+
+  socket.on('MatchFileContent', (dirname, filename, data)=>{
+    console.log(data)
+    returnData.push(data)
+    if(returnData.length == filenames.length){
+      table.style.display = "none"
+      loadbutton.style.display = "none"
+      iframe.style.display = ""
+      iframe.src = "/qrgen"
+      iframe.onload = function() {
+        let filedata = "MatchFileContent§"+matchdropdown.value+"§"
+        for(i=0;i<returnData.length;i++){
+          filedata += filenames[i]+"‹"+returnData[i]
+          if(i+1 != returnData.length){
+            filedata += "×"
           }
         }
-        break
-      default:
-        console.log(event.data)
-        break;
+        iframe.contentWindow.compdata = filedata
+      }
     }
   })
 
   function listFileOfMatch(){
     indicator.innerText = `Getting files of: ${matchdropdown.value}`
     matchdropdown.style.display = "none"
-    ws.send("getFilesInMatch§"+matchdropdown.value)
+    socket.emit("getFilesInMatch", matchdropdown.value)
   }
 
   function toggleFile(str){
@@ -116,14 +111,18 @@
     }
   }
   
-  async function getData(){
+  async function getDataQrcode(){
     returnData = []
     for(i=0;i<filenames.length;i++){
       indicator.innerText = `Getting filedata: ${filenames[i]}`
-      ws.send("readFromFile§"+matchdropdown.value+"§"+filenames[i])
+      socket.emit("readFromFile", matchdropdown.value, filenames[i])
       await sleep(300);
     }
     
+  }
+
+  async function sendWifi(){
+
   }
   
 </script>

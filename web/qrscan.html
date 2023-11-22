@@ -2,7 +2,8 @@
 <html>
   <head>
     
-    <title>Instascan</title>
+    <title>Code Scanner</title>
+    <script type="text/javascript" src="/src/socket.io.js"></script>
     <script type="text/javascript" src="/src/utils.js"></script>
     <script src="/src/jsonpack.js"></script>
     <script src="/src/qr-scanner.umd.min.js"></script>
@@ -30,10 +31,6 @@
       width:20vw;
       word-wrap:anywhere;
     }
-    #qrindex {
-
-    }
-
     </style>
  <style>
 
@@ -136,8 +133,7 @@
           filename = finaldata[i].split("‹")[0]
           filedata = finaldata[i].split("‹")[1]
           mostrecentscan.innerText += folderName + "/" + filename + "\n"
-          outputdata = "writeToFile§"+folderName+"§"+filename+"§"+filedata
-          ws.send(outputdata)
+          socket.emit("writeToFile", folderName, filename, filedata)
           //console.log(outputdata)
           await sleep(300)
         }

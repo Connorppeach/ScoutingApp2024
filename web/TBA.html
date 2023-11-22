@@ -1,6 +1,7 @@
 <head>
 <link rel="stylesheet" type="text/css" href="./src/style.css" />
 <script src="/src/jsonpack.js"></script>
+<script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <style>
   #indicator {
@@ -59,7 +60,7 @@ let year
 let eventkey
 
 function sendToServer(){
-  ws.send("writeToFile§"+ eventkey +"§match.jsonpack§"+jsonpack.pack(alliances))
+  socket.emit("writeToFile", eventkey, 'match.jsonpack', jsonpack.pack(alliances))
   alert("Saved!")
 }
 
