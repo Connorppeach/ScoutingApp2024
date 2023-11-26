@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
+<link rel="stylesheet" type="text/css" href="/src/style.css" />
+<script type="text/javascript" src="/src/socket.io.js"></script>
+<script type="text/javascript" src="/src/utils.js"></script>
+<script src="/src/jsonpack.js"></script>
+<style>
+body {
+  padding-top: 96px;
+}
+.tableHighlight {
+  background-color: var(--text-1);
+  color: var(--text-2);
+}
+#stats {
+  float: left;
+  display: block;
+}
+#stats h3 {
+  display: block;
+}
+#scouting {
+  float: left;
+  display: block;
+  width: 100%;
+}
+#scoutbox {
+  border: 1px solid var(--text-1);
+  padding: 5px;
+  color:var(--text-1);
+  width: fit-content;
+  float: left;
+  margin: 2px;
+  width: 24%;
+  word-wrap:anywhere;
+}
+h4, h3, h2 {
+  display: inline;
+}
+</style>
+</head>
+
+<body>
+<div class="topnav">
+  <a class="active" href="/data">Data</a>
+  <a href="/scout/match">Scouting</a>
+  <a href="/fileupload">Send</a>
+  <a href="/qrscan">Scan</a>
+  <a href="/tba">TBA</a>
+  <input id="username">
+  <select id="events" onchange="location.reload()">
+    <option disabled selected value>select</option>
+  </select>
+  <select id="position">
+    <option disabled selected value>select</option>
+    <option value="red-1">Red-1</option>
+    <option value="red-2">Red-2</option>
+    <option value="red-3">Red-3</option>
+    <option value="blue-1">Blue-1</option>
+    <option value="blue-2">Blue-2</option>
+    <option value="blue-3">Blue-3</option>
+  </select>
+</div>
+<div class="topnav" style="top:48px;">
+  <a href="/">Dashboard</a>
+  <a href="/data/leaderboard">Leaderboard</a>
+  <a href="/data/predictor">Predictor</a>
+  <a class='active' href="/data/" id='teamNavbarButton'></a>
+</div>
+<table id='matchTable' style="display:none;float: left;"></table>
+<div id="stats"></div>
+<div id="scouting"></div>
+<script>
+
+const matchTable = getel('matchTable')
+const event = getel('events')
+const statsdiv = getel('stats')
+const scoutingdiv = getel('scouting')
+
+const team = window.location.href.split('/')[5]
+getel('teamNavbarButton').href = "/data/team/"+team
+getel('teamNavbarButton').innerText = team
+
+let matchData = []
+let matchFileList = []
+let stats
+let pitData
+
+onOpen(function(){})
+onUsername(function(){})
+onEventList(function(){
+  selEvent = getel('events').value
+  if(selEvent != ""){
+    socket.emit("getProcessedData", event.value)
+    socket.emit('readFromFile', event.value, 'matches.jsonpack')
+    socket.emit('readFromFile', event.value, `pitscout-${team}.jsonpack`)
+  }
+})
+onMatchPosition(function(){})
+
+socket.on('processedData', (data)=>{
+  console.log(data)
+  for(i=0;i<data.length;i++){
+    if(data[i].key == team){
+      stats = data[i]
+    }
+  }
+  if(stats == undefined){
+    return
+  }
+  statsdiv.innerHTML += `<h1>${team}</h1>
+<h3>Votes: ${stats.votes}</h3>
+<h3>OPR: ${stats.OPR}</h3>
+<h3>DPR: ${stats.DPR}</h3>
+<h3>CCWM: ${stats.CCWM}</h3>
+<h3>Score: ${stats.avgScore}</h3>
+<h3>Win %: ${stats.winPercent}%</h3>`
+})
+
+socket.on('eventFileContent', (foldername, filename, data)=>{
+  if(data == ''){return}
+  switch(filename.split('-')[0]){
+    case 'matches.jsonpack':
+      matchData = jsonpack.unpack(data)
+      console.log(matchData)
+      matchTable.innerHTML += `<tr><th>key</th>
+<th>Red-1</th>
+<th>Red-2</th>
+<th>Red-3</th>
+<th>Blue-1</th>
+<th>Blue-2</th>
+<th>Blue-3</th>
+</tr>`
+
+      function inMatch(i){
+        for(a=0;a<3;a++){
+          if(matchData[i].blue[a] == team){return true}
+          if(matchData[i].red[a] == team){return true}
+        }
+        return false
+      }
+
+      function getElem(match, i, alliance, a){
+        tmpTeam = match[i][alliance][a]
+        if(tmpTeam == team){
+          matchFileList.push(
+            `matchscout-${matchData[i].key}-${alliance}-${a+1}.jsonpack`
+          )
+          return `<th class='tableHighlight'>${tmpTeam}</th>`
+        }else{
+          return `<th class='${alliance}'>${tmpTeam}</th>`
+        }
+      }
+
+      for(i=0;i<matchData.length;i++){
+        if(!inMatch(i)){continue}
+        line = `<tr><th>${matchData[i].key}</th>`
+        for(a=0;a<3;a++){
+          line += getElem(matchData, i, 'red', a)}
+        for(a=0;a<3;a++){
+          line += getElem(matchData, i, 'blue', a)}
+        matchTable.innerHTML += line +'</tr>'
+      }
+      matchTable.style.display = ''
+      socket.emit('getMultipleFiles', event.value, matchFileList)
+    break;
+
+    case 'pitscout':
+      if(data == ''){return}
+      pitData = jsonpack.unpack(data)
+      
+      console.log(pitData)
+      line = ''
+      line += `<h2>Pit Scouting</h2>`
+      line += `<h4> By ${pitData.name}</h4>`
+      line += `<p>${pitData.notes}</p>`
+      scoutingdiv.innerHTML = line + scoutingdiv.innerHTML
+      break;
+  }
+})
+
+socket.on('multipleFiles', (data)=>{
+  console.log(data)
+  
+  for(i=0;i<data.length;i++){
+    line = ''
+    match = data[i]
+    scout = match.data
+    line += `<br><h2>${match.key.split('-')[1]}</h2>`
+    line += `<br><h3> by ${scout.name}</h3><br>`
+    line += `<br><h4>Position: ${scout.alliance}-${scout.position}</h4>`
+    line += `<br><h4>Blue score: ${scout.blueScore}</h4>`
+    line += `<br><h4>Red score: ${scout.redScore}</h4>`
+    line += `<br><h4>Win: ${scout.win}</h4>`
+    line += `<br><p>${scout.notes}</p>`
+    scoutingdiv.innerHTML += `<div id='scoutbox'>${line}</div>`
+  }
+  
+})
+
+function redir(str){
+  window.location.href="http://"+window.location.href.split("/")[2]+str
+}
+
+</script>
+    
+</body>
+</html>

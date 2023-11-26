@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
+<link rel="stylesheet" type="text/css" href="/src/style.css" />
+<script type="text/javascript" src="/src/socket.io.js"></script>
+<script type="text/javascript" src="/src/utils.js"></script>
+<script src="/src/jsonpack.js"></script>
+<style>
+body {
+  padding-top: 96px;
+}
+.selectRow {
+  cursor:pointer;
+}
+.selectRow:hover {
+  background-color: var(--select-1);
+}
+</style>
+</head>
+
+<body>
+<div class="topnav">
+  <a class="active" href="/data">Data</a>
+  <a href="/scout/match">Scouting</a>
+  <a href="/fileupload">Send</a>
+  <a href="/qrscan">Scan</a>
+  <a href="/tba">TBA</a>
+  <input id="username">
+  <select id="events" onchange="location.reload()">
+    <option disabled selected value>select</option>
+  </select>
+  <select id="position">
+    <option disabled selected value>select</option>
+    <option value="red-1">Red-1</option>
+    <option value="red-2">Red-2</option>
+    <option value="red-3">Red-3</option>
+    <option value="blue-1">Blue-1</option>
+    <option value="blue-2">Blue-2</option>
+    <option value="blue-3">Blue-3</option>
+  </select>
+</div>
+<div class="topnav" style="top:48px;">
+  <a href="/">Dashboard</a>
+  <a class="active" href="/data/leaderboard">Leaderboard</a>
+  <a href="/data/predictor">Predictor</a>
+  <a href="/data/selector">Selector</a>
+</div>
+<table id='teamTable' style="display:none;float: left;"></table>
+<script>
+const teamTable = getel('teamTable')
+const event = getel('events')
+
+let fileList = []
+let matchData = []
+let teamList = []
+
+onOpen(function(){})
+onUsername(function(){})
+onEventList(function(){
+  socket.emit("getProcessedData", event.value)
+})
+onMatchPosition(function(){})
+
+socket.on('processedData', (data)=>{
+  console.log(data)
+  teamTable.innerHTML += `<tr style='cursor:pointer;'>
+<th onclick='sortTable(teamTable, 0)'>key</th>
+<th onclick='sortTable(teamTable, 1)'>Votes</th>
+<th onclick='sortTable(teamTable, 2)'>OPR</th>
+<th onclick='sortTable(teamTable, 3)'>DPR</th>
+<th onclick='sortTable(teamTable, 4)'>CCWM</th>
+<th onclick='sortTable(teamTable, 5)'>Score</th>
+<th onclick='sortTable(teamTable, 6)'>Win %</th>
+</tr>`
+  for(i=0;i<data.length;i++){
+    teamTable.innerHTML += `<tr class='selectRow' onclick='redir("/data/team/${data[i].key}")'>
+<th>${data[i].key}</th>
+<th>${data[i].votes}</th>
+<th>${data[i].OPR}</th>
+<th>${data[i].DPR}</th>
+<th>${data[i].CCWM}</th>
+<th>${data[i].avgScore}</th>
+<th>${data[i].winPercent}%</th>
+</tr>`
+  }
+  teamTable.style.display = ''
+})
+
+
+function redir(str){
+  window.location.href="http://"+window.location.href.split("/")[2]+str
+}
+
+</script>
+    
+</body>
+</html>

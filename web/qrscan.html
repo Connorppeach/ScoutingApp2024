@@ -2,7 +2,8 @@
 <html>
   <head>
     
-    <title>Instascan</title>
+    <title>Code Scanner</title>
+    <script type="text/javascript" src="/src/socket.io.js"></script>
     <script type="text/javascript" src="/src/utils.js"></script>
     <script src="/src/jsonpack.js"></script>
     <script src="/src/qr-scanner.umd.min.js"></script>
@@ -30,10 +31,6 @@
       width:20vw;
       word-wrap:anywhere;
     }
-    #qrindex {
-
-    }
-
     </style>
  <style>
 
@@ -41,12 +38,24 @@
   </head>
   <body>
     <div class="topnav">
-      <a href="/">Data</a>
-      <a href="/matchscout">Match Scouting</a>
-      <a href="/pitscout">Pit Scouting</a>
+      <a href="/data">Data</a>
+      <a href="/scout/match">Scouting</a>
       <a href="/fileupload">Send</a>
       <a class="active" href="/qrscan">Scan</a>
       <a href="/tba">TBA</a>
+      <input id="username">
+      <select id="events">
+        <option disabled selected value>select</option>
+      </select>
+      <select id="position">
+        <option disabled selected value>select</option>
+        <option value="red-1">Red-1</option>
+        <option value="red-2">Red-2</option>
+        <option value="red-3">Red-3</option>
+        <option value="blue-1">Blue-1</option>
+        <option value="blue-2">Blue-2</option>
+        <option value="blue-3">Blue-3</option>
+      </select>
     </div>
     <video id="preview"></video>
     <p id="mostrecentscan"></p>
@@ -63,6 +72,11 @@
       const qrindex = getel('qrindex')
       const qrbar = getel('qrbar')
 
+      onOpen(function(){})
+      onUsername(function(){})
+      onEventList(function(){})
+      onMatchPosition(function(){})
+
       compdata = []
       prevcount = 0
       previndex = -1
@@ -72,8 +86,8 @@
         count = parseInt(data.split("•")[1], 36)
         data = data.split("•")[2]
 
-        
 
+        
         if(compdata[index] != data){
           mostrecentscan.innerText = data
           if(count != prevcount){
@@ -136,10 +150,9 @@
           filename = finaldata[i].split("‹")[0]
           filedata = finaldata[i].split("‹")[1]
           mostrecentscan.innerText += folderName + "/" + filename + "\n"
-          outputdata = "writeToFile§"+folderName+"§"+filename+"§"+filedata
-          ws.send(outputdata)
+          socket.emit("writeToFile", folderName, filename, filedata)
           //console.log(outputdata)
-          await sleep(300)
+          await sleep(50)
         }
       }
 

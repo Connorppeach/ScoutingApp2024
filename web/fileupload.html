@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<link rel="stylesheet" type="text/css" href="./src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/style.css" />
+<script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <script src="/src/jsonpack.js"></script>
 <style>
@@ -14,26 +14,42 @@
 
 <body>
 <div class="topnav">
-  <a href="/">Data</a>
-  <a href="/matchscout">Match Scouting</a>
-  <a href="/pitscout">Pit Scouting</a>
+  <a href="/data">Data</a>
+  <a href="/scout/match">Scouting</a>
   <a class="active" href="/fileupload">Send</a>
   <a href="/qrscan">Scan</a>
-  <a href="/tba">Init</a>
+  <a href="/tba">TBA</a>
+  <input id="username">
+  <select id="events">
+    <option disabled selected value>select</option>
+  </select>
+  <select id="position">
+    <option disabled selected value>select</option>
+    <option value="red-1">Red-1</option>
+    <option value="red-2">Red-2</option>
+    <option value="red-3">Red-3</option>
+    <option value="blue-1">Blue-1</option>
+    <option value="blue-2">Blue-2</option>
+    <option value="blue-3">Blue-3</option>
+  </select>
 </div>
 
 <select id="matchdropdown" onchange="listFileOfMatch()">
   <option disabled selected value> -- select an option -- </option>
 </select>
-<button id="loadbutton" style="display:none;" onclick="getData()">Load</button>
 <p id="indicator">Getting Matches...</p>
+<button id="loadQrbutton" style="display:none;" onclick="getDataQrcode()">Send via qr codes</button><br>
+<input placeholder="ws://[Scouting IP]:4388" id="WifiAddress" style="display:none;" ></input>
+<button id="loadWifibutton" style="display:none;" onclick="sendWifi()">Send via wifi</button>
 <table id='table' style="display:none;"></table>
 <iframe id='iframe' style="display:none;"></iframe>
 
 <script>
   const matchdropdown = getel('matchdropdown')
   const table = getel('table')
-  const loadbutton = getel('loadbutton')
+  const loadQrbutton = getel('loadQrbutton')
+  const WifiAddress = getel('WifiAddress')
+  const loadWifiButton = getel('loadWifibutton')
   const iframe = getel('iframe')
   const indicator = getel('indicator')
 
@@ -41,70 +57,47 @@
   let returnData = []
 
   onOpen(function(){
-    ws.send("getMatches")
+    socket.emit('getFolders')
+  })
+  onUsername(function(){})
+  onEventList(function(){})
+  onMatchPosition(function(){})
+
+  socket.on('folderList', (data)=>{
+    line = ""
+    for(i=0; i<matchlist.length;i++){
+      line += `<option value="${matchlist[i]}">${matchlist[i]}</option>`
+    }
+    matchdropdown.innerHTML += line
+    indicator.innerText = ""
   })
 
-  onMessage(function(event){
-    if(event.data == ""){return}
-
-    let data = event.data.split('§')
-    switch(data[0]){
-      case "MatchList":
-        matches = data[1].split('•')
-        line = ""
-        for(i=0; i<matches.length;i++){
-          line += `<option value="${matches[i]}">${matches[i]}</option>`
-        }
-        matchdropdown.innerHTML += line
-        indicator.innerText = ""
-        break;
-      case "MatchFileList":
-        files = data[2].split('•')
-        line = "<tr>"
-        line += "<th></th>"
-        line += "<th>File</th>"
-        line += "</tr>"
-        for(i=0;i<files.length;i++){
-          line += "<tr>"
-          line += `<th><input type='checkbox' onChange='toggleFile("${files[i]}")'></th>`
-          line += `<th>${files[i]}</th>`
-          line += "</tr>"
-        }
-        table.innerHTML = line
-        table.style.display = ""
-        loadbutton.style.display = ""
-        indicator.innerText = ""
-        
-        break
-      case "MatchFileContent":
-        returnData.push(data[3])
-        if(returnData.length == filenames.length){
-          table.style.display = "none"
-          loadbutton.style.display = "none"
-          iframe.style.display = ""
-          iframe.src = "/qrgen"
-          iframe.onload = function() {
-            let filedata = "MatchFileContent§"+matchdropdown.value+"§"
-            for(i=0;i<returnData.length;i++){
-              filedata += filenames[i]+"‹"+returnData[i]
-              if(i+1 != returnData.length){
-                filedata += "×"
-              }
-            }
-            iframe.contentWindow.compdata = filedata
-          }
-        }
-        break
-      default:
-        console.log(event.data)
-        break;
+  socket.on('eventFileList', (data)=>{
+    if(matchdropdown.value == ''){return}
+    files = data.split('•')
+    line = "<tr>"
+    line += "<th><input type='checkbox' id='selectAll' onChange='selectAll()'></th>"
+    line += "<th>File</th>"
+    line += "</tr>"
+    for(i=0;i<files.length;i++){
+      line += "<tr>"
+      line += `<th><input type='checkbox' onChange='toggleFile("${files[i]}")'></th>`
+      line += `<th>${files[i]}</th>`
+      line += "</tr>"
     }
+    table.innerHTML = line
+    table.style.display = ""
+    loadQrbutton.style.display = ""
+    loadWifiButton.style.display = ""
+    WifiAddress.style.display = ""
+    indicator.innerText = ""
   })
 
   function listFileOfMatch(){
+    if(matchdropdown.value == ''){return}
     indicator.innerText = `Getting files of: ${matchdropdown.value}`
     matchdropdown.style.display = "none"
-    ws.send("getFilesInMatch§"+matchdropdown.value)
+    socket.emit("getFilesInEvent", matchdropdown.value)
   }
 
   function toggleFile(str){
@@ -116,14 +109,52 @@
     }
   }
   
-  async function getData(){
-    returnData = []
+  async function readData(){
+    reternData = []
     for(i=0;i<filenames.length;i++){
       indicator.innerText = `Getting filedata: ${filenames[i]}`
-      ws.send("readFromFile§"+matchdropdown.value+"§"+filenames[i])
-      await sleep(300);
+      socket.emit("readFromFile", matchdropdown.value, filenames[i])
+      await sleep(50);
     }
-    
+  }
+
+  async function getDataQrcode(){
+    readData()
+    socket.on('eventFileContent', (dirname, filename, data)=>{
+      console.log(data)
+      returnData.push(data)
+      if(returnData.length == filenames.length){
+        table.style.display = "none"
+        loadQrbutton.style.display = "none"
+        loadWifiButton.style.display = "none"
+        iframe.style.display = ""
+        iframe.src = "/qrgen"
+        iframe.onload = function() {
+          let filedata = "eventFileContent§"+matchdropdown.value+"§"
+          for(i=0;i<returnData.length;i++){
+            filedata += filenames[i]+"‹"+returnData[i]
+            if(i+1 != returnData.length){
+              filedata += "×"
+            }
+          }
+          iframe.contentWindow.compdata = filedata
+        }
+      }
+    })
+    indicator.style.display = 'none'
+    loadWifiButton.style.display = "none"
+    WifiAddress.style.display = "none"
+  }
+
+  function selectAll(){
+    rows = table.children[0].children
+    for(i=1;i<rows.length-1;i++){
+      rows[i].children[0].children[0].click()
+    }
+  }
+
+  async function sendWifi(){
+    socket.emit('sendViaWifi', WifiAddress.value, matchdropdown.value, filenames)
   }
   
 </script>

@@ -1,7 +1,24 @@
+:root {
+  /* --backround-0: #dadada;
+  --backround-1: #c0c0c0;
+  --backround-2: #9e9e9e;
+  --text-1: #1f1f1f;
+  --text-2: #dddddd;
+  --select-1:#059100; */
+
+  --backround-0: #1d1d1d;
+  --backround-1: #333;
+  --backround-2: #242424;
+  --text-1: #f2f2f2;
+  --text-2: #000000;
+  --select-1:#059100;
+} 
+
 body {
   margin: 0;
   padding-top: 48px;
   font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--backround-0);
 }
 
 .topnav {
@@ -10,12 +27,12 @@ body {
   left:0;
   right:0;
   overflow: hidden;
-  background-color: #333;
+  background-color: var(--backround-1);
 }
 
 .topnav a {
   float: left;
-  color: #f2f2f2;
+  color: var(--text-1);
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
@@ -23,23 +40,13 @@ body {
 }
 
 .topnav a:hover {
-  background-color: #ddd;
-  color: black;
+  background-color: var(--backround-2);
+  color: var(--text-1);
 }
 
 .topnav a.active {
-  background-color: #059100;
-  color: white;
-}
-
-th, td {
-  border: 1px solid black;
-  padding: 3px;
-  cursor:select;
-}
-
-table, tr, th, td {
-  cursor:select;
+  background-color: var(--select-1);
+  color: var(--text-1);
 }
 
 .red {
@@ -48,6 +55,58 @@ table, tr, th, td {
 
 .blue {
   background-color: #6161ff;
+}
+
+.green {
+  background-color: #059100;
+}
+
+.topnav #username {
+  float: right;
+  color: var(--text-1);
+  background-color: var(--backround-2);
+  border: none;
+  text-align: center;
+  padding: 14px 8px;
+  text-decoration: none;
+  font-size: 17px;
+  width:10vw;
+}
+
+.topnav #events {
+  float: right;
+  color: var(--text-1);
+  background-color: var(--backround-2);
+  border: none;
+  text-align: center;
+  padding: 14px 8px;
+  text-decoration: none;
+  font-size: 17px;
+  width:10vw;
+  margin-right: 10px;
+}
+
+.topnav #position {
+  float: right;
+  color: var(--text-1);
+  background-color: var(--backround-2);
+  border: none;
+  text-align: center;
+  padding: 14px 8px;
+  text-decoration: none;
+  font-size: 17px;
+  width:10vw;
+  margin-right: 10px;
+}
+
+p, label, h1, h2, h3, h4, h5, span {
+  color: var(--text-1);
+}
+
+th, td {
+  border: 1px solid var(--text-1);
+  color:var(--text-1);
+  padding: 3px;
 }
 
 #qr{
@@ -78,7 +137,7 @@ table, tr, th, td {
   right:0;
   overflow: visible;
   height:48px;
-  background-color: #333;
+  background-color: var(--backround-1);
   padding-top: 5px;
   padding-bottom: 5px;
 }
@@ -103,8 +162,8 @@ table, tr, th, td {
 
 iframe {
   position: fixed;
-  top:48;
+  top:48px;
   left:0;
-  width:100%;
+  width: 100%;
   height: 100%;
 }

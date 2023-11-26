@@ -1,10 +1,11 @@
-function getel(str){return document.getElementById(str)}
+matchlist = []
 
+var socket = io("ws://"+window.location.href.split('/')[2]);
+
+function getel(str){return document.getElementById(str)}
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-
-var ws = new WebSocket("ws://"+window.location.href.split('/')[2]+"/ws");
 
 Array.prototype.remove= function(){
   var what, a= arguments, L= a.length, ax;
@@ -17,30 +18,137 @@ Array.prototype.remove= function(){
   return this;
 }
 
-ws.onclose = function(event) {
-  if (event.wasClean) {
-    console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-  } else {
-    // e.g. server process killed or network down
-    // event.code is usually 1006 in this case
-    console.log('[close] Connection died');
-  }
-};
 
-ws.onerror = function(error) {
+
+socket.onclose = function() {
+  console.log('[close] Connection died');
+}
+
+socket.onerror = function(error) {
   console.log(error)
 }
 
 function onOpen(func){
-  ws.onopen = function(event) {
-    console.log("[open] Connection established");
-    func(event)
-  };
+  socket.on('connect', () => {
+    console.log("[open] Connection established")
+    getEventList()
+    getUsername()
+    getMatchPosition()
+    func()
+  })
 }
 
-function onMessage(func){
-  ws.onmessage = function(event) {
-    console.log(`[message] Data received from server: ${event.data}`);
-    func(event)
+
+
+function getUsername(){
+  socket.emit("getUsername")
+}
+
+function setUsername(value){
+  socket.emit("setUsername", value)
+}
+
+
+function onUsername(func){
+  socket.on('username', (data)=>{
+    getel('username').value = data
+    func(data)
+  })
+  getel('username').addEventListener("keyup", (e) => {
+    if(e.key == "Enter"){
+      getel('username').blur()
+      setUsername(getel('username').value)
+    }
+  })
+}
+
+function getEventList(){
+  socket.emit("getEvents")
+}
+
+function setEvent(event){
+  socket.emit('setSelectedEvent', event)
+}
+
+function onEventList(func){
+  socket.on('eventList', (data, selectedEvent)=>{
+    matchlist = data.split('•')
+    line = ''
+    if(selectedEvent == ''){
+      line += '<option disabled selected value>select</option>'
+    }
+    for(i=0; i<matchlist.length;i++){
+      if(matchlist[i]==selectedEvent){
+        line += `<option selected `
+      }else{
+        line += `<option `
+      }
+      line += `value="${matchlist[i]}">${matchlist[i]}</option>`
+    }
+    getel('events').innerHTML = line
+    func(matchlist)
+  })
+  getel('events').addEventListener("change", (e) => {
+    setEvent(getel('events').value)
+  })
+}
+
+function getMatchPosition(){
+  socket.emit("getMatchPosition")
+}
+
+function setMatchPosition(pos){
+  socket.emit("setMatchPosition", pos)
+}
+
+
+function onMatchPosition(func){
+  socket.on('matchPosition', (matchPosition)=>{
+    getel('position').value = matchPosition
+    func(matchPosition)
+  })
+  getel('position').addEventListener("change", (e) => {
+    setMatchPosition(getel('position').value)
+  })
+}
+
+function sortTable(table, n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  
+  switching = true;
+  dir = "asc";
+  while (switching) {
+      switching = false;
+      rows = table.getElementsByTagName("TR");
+      for (i = 1; i < (rows.length - 1); i++) {
+          shouldSwitch = false;
+          x = rows[i].getElementsByTagName("TH")[n];
+          y = rows[i + 1].getElementsByTagName("TH")[n];
+                  var cmpX=isNaN(parseInt(x.innerHTML))?x.innerHTML.toLowerCase():parseInt(x.innerHTML);
+                  var cmpY=isNaN(parseInt(y.innerHTML))?y.innerHTML.toLowerCase():parseInt(y.innerHTML);
+  cmpX=(cmpX=='-')?0:cmpX;
+  cmpY=(cmpY=='-')?0:cmpY;
+          if (dir == "asc") {
+            if (cmpX < cmpY) {
+              shouldSwitch= true;
+              break;
+            }
+          } else if (dir == "desc") {
+            if (cmpX > cmpY) {
+              shouldSwitch= true;
+              break;
+            }
+          }
+      }
+      if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+          switchcount ++;      
+      } else {
+          if (switchcount == 0 && dir == "asc") {
+              dir = "desc";
+              switching = true;
+          }
+      }
   }
 }

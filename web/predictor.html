@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
+<link rel="stylesheet" type="text/css" href="/src/style.css" />
+<script type="text/javascript" src="/src/socket.io.js"></script>
+<script type="text/javascript" src="/src/utils.js"></script>
+<script src="/src/jsonpack.js"></script>
+<style>
+body {
+  padding-top: 96px;
+}
+</style>
+</head>
+
+<body>
+<div class="topnav">
+  <a class="active" href="/data">Data</a>
+  <a href="/scout/match">Scouting</a>
+  <a href="/fileupload">Send</a>
+  <a href="/qrscan">Scan</a>
+  <a href="/tba">TBA</a>
+  <input id="username">
+  <select id="events" onchange="location.reload()">
+    <option disabled selected value>select</option>
+  </select>
+  <select id="position">
+    <option disabled selected value>select</option>
+    <option value="red-1">Red-1</option>
+    <option value="red-2">Red-2</option>
+    <option value="red-3">Red-3</option>
+    <option value="blue-1">Blue-1</option>
+    <option value="blue-2">Blue-2</option>
+    <option value="blue-3">Blue-3</option>
+  </select>
+</div>
+<div class="topnav" style="top:48px;">
+  <a href="/">Dashboard</a>
+  <a href="/data/leaderboard">Leaderboard</a>
+  <a class='active' href="/data/predictor">Predictor</a>
+  <a href="/data/selector">Selector</a>
+</div>
+
+<select id="calcMethod" onchange="predict()">
+    <option selected value="opr-dpr">OPR & DPR (best)</option>
+    <option value="votes">Votes</option>
+    <option value="score">Avg Score</option>
+    <option value="wins">Win Percentage</option>
+</select>
+<br>
+<select class="red" id="red-1" onchange="predict()">
+  <option disabled selected value>select</option>
+</select>
+<select class="red" id="red-2" onchange="predict()">
+  <option disabled selected value>select</option>
+</select>
+<select class="red" id="red-3" onchange="predict()">
+  <option disabled selected value>select</option>
+</select>
+<span id="redIndicator"></span>
+
+<br>
+<select class="blue" id="blue-1" onchange="predict()">
+  <option disabled selected value>select</option>
+</select>
+<select class="blue" id="blue-2" onchange="predict()">
+  <option disabled selected value>select</option>
+</select>
+<select class="blue" id="blue-3" onchange="predict()">
+  <option disabled selected value>select</option>
+</select>
+<span id="blueIndicator"></span>
+
+<br>
+<p id="info"></p>
+
+<script>
+const red1 = getel('red-1')
+const red2 = getel('red-2')
+const red3 = getel('red-3')
+const blue1 = getel('blue-1')
+const blue2 = getel('blue-2')
+const blue3 = getel('blue-3')
+const selectors = [red1, red2, red3, blue1, blue2, blue3]
+
+const event = getel('events')
+const calcMethod = getel('calcMethod')
+const info = getel('info')
+
+const redIndicator = getel('redIndicator')
+const blueIndicator = getel('blueIndicator')
+
+let teamData
+
+onOpen(function(){})
+onUsername(function(){})
+onEventList(function(){
+    if(event.value != ""){
+        socket.emit("getProcessedData", event.value)
+    }
+})
+onMatchPosition(function(){})
+
+socket.on('processedData', (data)=>{
+    console.log(data)
+    teamData = data
+    line = ''
+    for(i=0;i<data.length;i++){
+        line += `<option value='${data[i].key}'>${data[i].key}</option>`
+    }
+    for(i=0;i<selectors.length;i++){
+        selectors[i].innerHTML += line
+    }
+})
+
+function getFromOPRdata(key){
+    for(i=0;i<teamData.length;i++){
+        if(teamData[i].key == key){
+            return teamData[i]
+        }
+    }
+    return null
+}
+
+function round2(x, n){
+    return Number(x.toFixed(n))
+}
+
+function results(redScore, blueScore){
+    if(redScore > blueScore){
+        redIndicator.innerText = '< Winner'
+        blueIndicator.innerText = ''
+    }else if(blueScore > redScore){
+        redIndicator.innerText = ''
+        blueIndicator.innerText = '< Winner'
+    }else{
+        redIndicator.innerText = ' Tie'
+        blueIndicator.innerText = ' Tie'
+    }
+}
+
+function predict(){
+    for(i=0;i<selectors.length;i++){
+        if(selectors[i].value == ''){
+            return
+        }
+    }
+    let red1team = getFromOPRdata(red1.value)
+    let red2team = getFromOPRdata(red2.value)
+    let red3team = getFromOPRdata(red3.value)
+    let blue1team = getFromOPRdata(blue1.value)
+    let blue2team = getFromOPRdata(blue2.value)
+    let blue3team = getFromOPRdata(blue3.value)
+    let line = ''
+    switch(calcMethod.value){
+        case 'opr-dpr':
+            redOPR = round2(red1team.OPR + red2team.OPR + red3team.OPR, 2)
+            redDPR = round2(red1team.DPR + red2team.DPR + red3team.DPR, 2)
+
+            blueOPR = round2(blue1team.OPR + blue2team.OPR + blue3team.OPR, 2)
+            blueDPR = round2(blue1team.DPR + blue2team.DPR + blue3team.DPR, 2)
+            
+            redPR = round2(redOPR - blueDPR, 2)
+            bluePR = round2(blueOPR - redDPR, 2)
+
+            line += `Red OPR: ${redOPR}\n`
+            line += `Red DPR: ${redDPR}\n\n`
+
+            line += `Blue OPR: ${blueOPR}\n`
+            line += `Blue DPR: ${blueDPR}\n\n`
+        
+            line += `Red PR: ${redPR}\n`
+            line += `Blue PR: ${bluePR}\n\n`
+            results(redPR, bluePR)
+            break;
+        case 'votes':
+            redVotes = (red1team.votes + red2team.votes + red3team.votes)
+            blueVotes = (blue1team.votes + blue2team.votes + blue3team.votes)
+            line += `Red Votes: ${redVotes}\n`
+            line += `Blue Votes: ${blueVotes}\n`
+            results(redVotes, blueVotes)
+            break;
+        case 'score':
+            redScore = (red1team.avgScore + red2team.avgScore + red3team.avgScore)
+            blueScore = (blue1team.avgScore + blue2team.avgScore + blue3team.avgScore)
+            line += `Red Avg Score: ${redScore}\n`
+            line += `Blue Avg Scire: ${blueScore}\n`
+            results(redScore, blueScore)
+            break;
+        case 'wins':
+            redWin = (red1team.winPercent + red2team.winPercent + red3team.winPercent)
+            blueWin = (blue1team.winPercent + blue2team.winPercent + blue3team.winPercent)
+            line += `Red Win Percentage: ${redWin}\n`
+            line += `Blue Win Percentage: ${blueWin}\n`
+            results(redWin, blueWin)
+            break;
+    }
+    info.innerText = line
+}
+
+</script>
+    
+</body>
+</html>

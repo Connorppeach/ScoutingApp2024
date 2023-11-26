@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
+<link rel="stylesheet" type="text/css" href="/src/style.css" />
+<script type="text/javascript" src="/src/socket.io.js"></script>
+<script type="text/javascript" src="/src/utils.js"></script>
+<script src="/src/jsonpack.js"></script>
+<style>
+body {
+  padding-top: 96px;
+}
+.team, .teamgreen {
+  border: 1px solid var(--text-1);
+  padding: 5px;
+  color:var(--text-1);
+  width: fit-content;
+  float: left;
+  margin: 2px;
+  cursor: pointer;
+}
+.teamgreen {
+  background-color: #059100;
+}
+</style>
+</head>
+
+<body>
+<div class="topnav">
+  <a class="active" href="/data">Data</a>
+  <a href="/scout/match">Scouting</a>
+  <a href="/fileupload">Send</a>
+  <a href="/qrscan">Scan</a>
+  <a href="/tba">TBA</a>
+  <input id="username">
+  <select id="events" onchange="location.reload()">
+    <option disabled selected value>select</option>
+  </select>
+  <select id="position">
+    <option disabled selected value>select</option>
+    <option value="red-1">Red-1</option>
+    <option value="red-2">Red-2</option>
+    <option value="red-3">Red-3</option>
+    <option value="blue-1">Blue-1</option>
+    <option value="blue-2">Blue-2</option>
+    <option value="blue-3">Blue-3</option>
+  </select>
+</div>
+<div class="topnav" style="top:48px;">
+  <a href="/">Dashboard</a>
+  <a href="/data/leaderboard">Leaderboard</a>
+  <a href="/data/predictor">Predictor</a>
+  <a class='active' href="/data/selector">Selector</a>
+</div>
+<select id="calcMethod" onchange="refresh()">
+  <option selected value="opr">OPR (best)</option>
+  <option value="votes">Votes</option>
+  <option value="score">Avg Score</option>
+  <option value="wins">Win Percentage</option>
+</select>
+<button onclick="findBestMatches()">Find Best Matches</button>
+<br>
+<select id="team-1" onchange="refresh()">
+  <option selected value=''>Team not selected</option>
+</select>
+<select id="team-2" onchange="refresh()">
+  <option selected value=''>Team not selected</option>
+</select>
+<select id="team-3" onchange="refresh()">
+  <option selected value=''>Team not selected</option>
+</select>
+<br>
+<p id="info"></p>
+<br>
+<div id="teamList"></div>
+<br>
+
+
+
+<script>
+const team1 = getel('team-1')
+const team2 = getel('team-2')
+const team3 = getel('team-3')
+const selectors = [team1, team2, team3]
+
+const event = getel('events')
+const calcMethod = getel('calcMethod')
+const info = getel('info')
+const teamList = getel('teamList')
+
+let teamData
+let availTeams = []
+
+onOpen(function(){})
+onUsername(function(){})
+onEventList(function(){
+    if(event.value != ""){
+        socket.emit("getProcessedData", event.value)
+    }
+})
+onMatchPosition(function(){})
+
+socket.on('processedData', (data)=>{
+  console.log(data)
+  teamData = data
+  line = ''
+  for(i=0;i<data.length;i++){
+    line += `<option value='${data[i].key}'>${data[i].key}</option>`
+    teamList.innerHTML += `<div class='teamgreen' onclick='toggleTeam("${data[i].key}")'>${data[i].key}</div>`
+    availTeams.push(data[i].key)
+  }
+  for(i=0;i<selectors.length;i++){
+    selectors[i].innerHTML += line
+  }
+  console.log(availTeams)
+})
+
+function getFromOPRdata(key){
+  for(i=0;i<teamData.length;i++){
+    if(teamData[i].key == key){
+      return teamData[i]
+    }
+  }
+  return null
+}
+
+function round2(x, n){
+  return Number(x.toFixed(n))
+}
+
+function toggleTeam(team){
+  for(i=0;i<teamList.children.length;i++){
+    elem = teamList.children[i]
+    if(elem.innerHTML == team){
+      if(elem.className == 'teamgreen'){
+        index = availTeams.indexOf(elem.innerHTML)
+        availTeams.splice(index, 1)
+        elem.className = 'team'
+      }else{
+        availTeams.push(elem.innerHTML)
+        elem.className = 'teamgreen'
+      }
+    }
+  }
+}
+
+function getVals(tmpteam1, tmpteam2, tmpteam3){
+  if(tmpteam1 == undefined){
+    tmpteam1 = {}
+    tmpteam1.OPR = 0
+    tmpteam1.votes = 0
+    tmpteam1.avgScore = 0
+    tmpteam1.winPercent = 0
+  }
+  if(tmpteam2 == undefined){
+    tmpteam2 = {}
+    tmpteam2.OPR = 0
+    tmpteam2.votes = 0
+    tmpteam2.avgScore = 0
+    tmpteam2.winPercent = 0
+  }
+  if(tmpteam3 == undefined){
+    tmpteam3 = {}
+    tmpteam3.OPR = 0
+    tmpteam3.votes = 0
+    tmpteam3.avgScore = 0
+    tmpteam3.winPercent = 0
+  }
+  let line = ''
+  switch(calcMethod.value){
+    case 'opr':
+      return  round2(tmpteam1.OPR + tmpteam2.OPR + tmpteam3.OPR, 2)
+      break;
+    case 'votes':
+      return round2(tmpteam1.votes + tmpteam1.votes + tmpteam1.votes, 2)
+      break;
+    case 'score':
+      return round2(tmpteam1.avgScore + tmpteam2.avgScore + tmpteam3.avgScore, 2)
+      break;
+    case 'wins':
+      return round2(tmpteam1.winPercent + tmpteam2.winPercent + tmpteam3.winPercent, 2)
+      break;
+  }
+}
+
+function refresh(){
+  tmpteam1 = getFromOPRdata(team1.value)
+  tmpteam2 = getFromOPRdata(team2.value)
+  tmpteam3 = getFromOPRdata(team3.value)
+  if(tmpteam1 == undefined){
+    tmpteam1 = {}
+    tmpteam1.OPR = 0
+    tmpteam1.votes = 0
+    tmpteam1.avgScore = 0
+    tmpteam1.winPercent = 0
+  }
+  if(tmpteam2 == undefined){
+    tmpteam2 = {}
+    tmpteam2.OPR = 0
+    tmpteam2.votes = 0
+    tmpteam2.avgScore = 0
+    tmpteam2.winPercent = 0
+  }
+  if(tmpteam3 == undefined){
+    tmpteam3 = {}
+    tmpteam3.OPR = 0
+    tmpteam3.votes = 0
+    tmpteam3.avgScore = 0
+    tmpteam3.winPercent = 0
+  }
+  let line = ''
+  switch(calcMethod.value){
+    case 'opr':
+        
+      teamOPR = round2(tmpteam1.OPR + tmpteam2.OPR + tmpteam3.OPR, 2)
+
+      line += `Team 1 OPR: ${tmpteam1.OPR}\n`
+      line += `Team 2 OPR: ${tmpteam2.OPR}\n`
+      line += `Team 3 OPR: ${tmpteam3.OPR}\n`
+      line += `Total OPR: ${teamOPR}`
+      break;
+    case 'votes':
+      teamvotes = round2(tmpteam1.votes + tmpteam1.votes + tmpteam1.votes, 2)
+
+      line += `Team 1 votes: ${tmpteam1.votes}\n`
+      line += `Team 2 votes: ${tmpteam2.votes}\n`
+      line += `Team 3 votes: ${tmpteam3.votes}\n`
+      line += `Total votes: ${teamvotes}`
+
+      break;
+    case 'score':
+      teamavgScore = round2(tmpteam1.avgScore + tmpteam2.avgScore + tmpteam3.avgScore, 2)
+
+      line += `Team 1 avgScore: ${tmpteam1.avgScore}\n`
+      line += `Team 2 avgScore: ${tmpteam2.avgScore}\n`
+      line += `Team 3 avgScore: ${tmpteam3.avgScore}\n`
+      line += `Total avgScore: ${teamavgScore}`
+      break;
+    case 'wins':
+      teamwinPercent = round2(tmpteam1.winPercent + tmpteam2.winPercent + tmpteam3.winPercent, 2)
+
+      line += `Team 1 winPercent: ${tmpteam1.winPercent}\n`
+      line += `Team 2 winPercent: ${tmpteam2.winPercent}\n`
+      line += `Team 3 winPercent: ${tmpteam3.winPercent}\n`
+      line += `Total winPercent: ${winPercent}`
+
+      break;
+  }
+  info.innerText = line
+}
+
+let tmpTeams = []
+
+function findBestMatches(){
+  if(team1.value == ''){
+    availTeams.sort(function(a, b){
+      return getVals(getFromOPRdata(b), undefined, undefined) - getVals(getFromOPRdata(a), undefined, undefined)
+    })
+    team1.value = availTeams[0]
+    toggleTeam(availTeams[0])
+    refresh()
+    findBestMatches()
+  }
+  if(team2.value == ''){
+    availTeams.sort(function(a, b){
+      return getVals(getFromOPRdata(team1.value), getFromOPRdata(b), undefined) - getVals(getFromOPRdata(team1.value), getFromOPRdata(a), undefined)
+    })
+    team2.value = availTeams[0]
+    toggleTeam(availTeams[0])
+    refresh()
+    findBestMatches()
+  }
+  if(team3.value == ''){
+    availTeams.sort(function(a, b){
+      return getVals(getFromOPRdata(team1.value), getFromOPRdata(team2.value), getFromOPRdata(b)) - getVals(getFromOPRdata(team1.value), getFromOPRdata(team2.value) ,getFromOPRdata(a))
+    })
+    team3.value = availTeams[0]
+    toggleTeam(availTeams[0])
+    refresh()
+    findBestMatches()
+  }
+}
+
+</script>
+    
+</body>
+</html>
