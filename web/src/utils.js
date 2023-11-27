@@ -152,3 +152,26 @@ function sortTable(table, n) {
       }
   }
 }
+
+let darkMode = true
+
+function toggleDarkMode(){
+  const setProp = (a, b)=>{document.documentElement.style.setProperty(a, b)}
+  if(darkMode){
+    setProp("--backround-0", "#dadada");
+    setProp("--backround-1", "#c0c0c0");
+    setProp("--backround-2", "#9e9e9e");
+    setProp("--text-1", "#1f1f1f");
+    setProp("--text-2", "#dddddd");
+    setProp("--select-1", "#059100");
+    darkMode = false
+  }else{
+    setProp("--backround-0", "#1d1d1d");
+    setProp("--backround-1", "#333");
+    setProp("--backround-2", "#242424");
+    setProp("--text-1", "#f2f2f2");
+    setProp("--text-2", "#000000");
+    setProp("--select-1", "#059100");
+    darkMode = true
+  }
+}

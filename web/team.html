@@ -35,6 +35,7 @@ body {
   margin: 2px;
   width: 24%;
   word-wrap:anywhere;
+  min-width: 300px;
 }
 h4, h3, h2 {
   display: inline;
@@ -67,6 +68,7 @@ h4, h3, h2 {
   <a href="/">Dashboard</a>
   <a href="/data/leaderboard">Leaderboard</a>
   <a href="/data/predictor">Predictor</a>
+  <a href="/data/selector">Selector</a>
   <a class='active' href="/data/" id='teamNavbarButton'></a>
 </div>
 <table id='matchTable' style="display:none;float: left;"></table>
@@ -85,6 +87,7 @@ getel('teamNavbarButton').innerText = team
 
 let matchData = []
 let matchFileList = []
+let allStats
 let stats
 let pitData
 
@@ -110,13 +113,14 @@ socket.on('processedData', (data)=>{
   if(stats == undefined){
     return
   }
+  allStats = data
   statsdiv.innerHTML += `<h1>${team}</h1>
-<h3>Votes: ${stats.votes}</h3>
-<h3>OPR: ${stats.OPR}</h3>
-<h3>DPR: ${stats.DPR}</h3>
-<h3>CCWM: ${stats.CCWM}</h3>
-<h3>Score: ${stats.avgScore}</h3>
-<h3>Win %: ${stats.winPercent}%</h3>`
+<h3>Votes: ${stats.votes} (#${getPlace('votes')})</h3>
+<h3>OPR: ${stats.OPR} (#${getPlace('OPR')})</h3>
+<h3>DPR: ${stats.DPR} (#${getPlace('DPR')})</h3>
+<h3>CCWM: ${stats.CCWM} (#${getPlace('CCWM')})</h3>
+<h3>Score: ${stats.avgScore} (#${getPlace('avgScore')})</h3>
+<h3>Win %: ${stats.winPercent}% (#${getPlace('winPercent')})</h3>`
 })
 
 socket.on('eventFileContent', (foldername, filename, data)=>{
@@ -181,6 +185,20 @@ socket.on('eventFileContent', (foldername, filename, data)=>{
   }
 })
 
+function getPerformanceStr(n){
+  switch(n){
+    case -1:
+      return 'Below Average'
+      break;
+    case 0:
+      return 'Average'
+      break;
+    case 1:
+      return 'Above Average'
+      break;
+  }
+}
+
 socket.on('multipleFiles', (data)=>{
   console.log(data)
   
@@ -194,11 +212,21 @@ socket.on('multipleFiles', (data)=>{
     line += `<br><h4>Blue score: ${scout.blueScore}</h4>`
     line += `<br><h4>Red score: ${scout.redScore}</h4>`
     line += `<br><h4>Win: ${scout.win}</h4>`
+    line += `<br><h4>Performance: ${getPerformanceStr(scout.performance)}</h4>`
     line += `<br><p>${scout.notes}</p>`
     scoutingdiv.innerHTML += `<div id='scoutbox'>${line}</div>`
   }
   
 })
+
+function getPlace(keyname){
+  data = []
+  for(i=0;i<allStats.length;i++){
+    data.push(String(allStats[i][keyname]))
+  }
+  data.sort((a, b)=>{return b-a})
+  return data.indexOf(String(stats[keyname]))+1
+}
 
 function redir(str){
   window.location.href="http://"+window.location.href.split("/")[2]+str
