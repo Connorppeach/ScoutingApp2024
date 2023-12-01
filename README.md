@@ -5,8 +5,8 @@ A remake of the scouting app for the 2024 FRC season
 Python is better for statistics, and that's what we need to be in the scouting app.
 ## Usage
 #### Initialization
-`pip install flask flask_socketio socketio numpy`   
 `cd ScoutingApp2024`   
+`pip install -r requirements.txt`   
 `python3 ./main.py`   
 - go to: http://localhost:4388
 - To init a match, you must go to the 'TBA' tab and select the correct year, and event.
