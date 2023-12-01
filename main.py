@@ -1,4 +1,5 @@
 import os
+from sys import platform
 import socketio as sioclient
 from time import sleep
 from flask import Flask, render_template, session, request, send_from_directory
@@ -7,8 +8,13 @@ from flask_socketio import SocketIO, test_client, emit
 import jsonpack
 import oprs
 
-webroot = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web/")
-dataroot = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/")
+webroot = os.getcwd() + "/web/"
+dataroot = os.getcwd() + "/data/"
+
+# Windows is weird, and flask expects linux-styled directories, even in windows.
+if platform in ['nt', 'win32', 'win64']:
+    webroot = webroot.split(':')[0].replace('\\', '/')
+    dataroot = dataroot.split(':')[0].replace('\\', '/')
 
 Username = 'Username'
 selectedEvent = ''
@@ -275,10 +281,10 @@ def gePitScoutingData(eventName, teamName):
 
 @socketio.on('getProcessedData')
 def getProcessedData(eventName):
-    data = oprs.getProcessedData(eventName)
+    data, pinvInaccuracy = oprs.getProcessedData(eventName)
     if eventName == '': return
     print(data)
-    socketio.emit('processedData', data)
+    socketio.emit('processedData', (data, pinvInaccuracy))
     
 
 

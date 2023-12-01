@@ -62,8 +62,11 @@ onEventList(function(){
 })
 onMatchPosition(function(){})
 
-socket.on('processedData', (data)=>{
+socket.on('processedData', (data, pinvInaccuracy)=>{
   console.log(data)
+  if(pinvInaccuracy){
+    alert('Singular matrix!\n Results may not be fully accurate!')
+  }
   teamTable.innerHTML += `<tr style='cursor:pointer;'>
 <th onclick='sortTable(teamTable, 0)'>key</th>
 <th onclick='sortTable(teamTable, 1)'>Votes</th>

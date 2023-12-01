@@ -105,13 +105,19 @@ def OPR_or_DPR_Calc(initmatrixresults):
     left_side = transposed.dot(M_array)
     #print(isSquare(left_side))
     #print(np.linalg.det(left_side))			#this just gives the determinant of the matrix for debugging
-    inverse_left = np.linalg.inv(left_side)
+    pinvInaccuracy = False
+    try:
+        inverse_left = np.linalg.inv(left_side)
+    except:
+        inverse_left = np.linalg.pinv(left_side)
+        pinvInaccuracy = True
+
     inverse_left_copy = inverse_left
 
     right_side = transposed_copy.dot(s_array)
     final_right_side = inverse_left_copy.dot(right_side)
 
-    return(final_right_side)
+    return(final_right_side, pinvInaccuracy)
 
 
 def calc(json):
@@ -121,10 +127,16 @@ def calc(json):
     
     teams = teams_least_to_greatest(json)
     #print(teams)
-    OPR_matrix = initmatrix(num_of_teams, num_of_alliances, json, teams, "OPR")
-    OPR_results = OPR_or_DPR_Calc(OPR_matrix)
-    DPR_matrix = initmatrix(num_of_teams, num_of_alliances, json, teams, "DPR")
-    DPR_results = OPR_or_DPR_Calc(DPR_matrix)
+    OPR_matrix                     = initmatrix(num_of_teams, num_of_alliances, json, teams, "OPR")
+    OPR_results, pinvInaccuracyOPR = OPR_or_DPR_Calc(OPR_matrix)
+    DPR_matrix                     = initmatrix(num_of_teams, num_of_alliances, json, teams, "DPR")
+    DPR_results, pinvInaccuracyDPR = OPR_or_DPR_Calc(DPR_matrix)
+
+    # When the matrix is inverted in OPR_or_DPR_Calc, it can give an error if not enough matches are scouted
+    # To let the scouters see their results better, the func pinv won't have this error
+    # But the pinv function isn't always accurate, So the two funcs can be switched between
+    # And its better to make a var that represents this error.
+    pinvInaccuracy = (pinvInaccuracyOPR | pinvInaccuracyDPR)
 
     result = []
     for i, _ in enumerate(OPR_results):
@@ -138,7 +150,7 @@ def calc(json):
             'DPR': DPR,
             'CCWM': CCWM
         })
-    return result
+    return result, pinvInaccuracy
 
 
 
@@ -289,7 +301,7 @@ def getProcessedData(eventName):
                 'bluescore': bluescore,
                 'redscore': redscore
             })
-    oprData = calc(oprData)
+    oprData, pinvInaccuracy = calc(oprData)
     
     for teamOPR in oprData:
         key = teamOPR['key']
@@ -314,4 +326,4 @@ def getProcessedData(eventName):
             teamOPR['votes'] = teamResult['votes']
         except:
             teamOPR['votes'] = 0
-    return oprData
+    return oprData, pinvInaccuracy

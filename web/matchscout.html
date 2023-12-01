@@ -63,9 +63,11 @@
   <br><br>
   <label for="teamPerformance">Team performance:</label>
   <select id="teamPerformance">
+    <option value="2">Far above average</option>
     <option value="1">Above average</option>
     <option selected value="0">Average</option>
     <option value="-1">Below average</option>
+    <option value="-2">Far below average</option>
   </select>
   <br>
   <textarea id="teamNotes" placeholder="Notes" style="width: 500px;height: 500px;float: left;"></textarea>
@@ -155,7 +157,8 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
         teamNotes.value = matchData.notes
       }else{
         winningAlliance.value = ''
-        allianceScore.value = ''
+        blueScore.value = ''
+        redScore.value = ''
         teamPerformance.value = 0
         teamNotes.value = ''
       }
@@ -207,6 +210,7 @@ function refreshData(){
 }
 
 function saveData(){
+  if(matchlist.value == ''){return}
   data = jsonpack.pack({
     name: username.value,
     alliance: alliance,

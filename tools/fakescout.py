@@ -2,13 +2,14 @@ import random
 import requests
 import json
 import os
+import sys
 
 import oprs
 import jsonpack
 
-eventCode = '2022code'
+# Move this script into the root dir, then grab an event code from TBA and run 'python3 ./fakescout.py [event code]'
 
-# Move this script into the root dir, then grab an event code from TBA and paste it to the eventCode var above
+eventCode = sys.argv[1]
 
 TBAip = "https://www.thebluealliance.com/api/v3"
 headers = {"User-Agent": "Mozilla/5.0", "X-TBA-Auth-Key": "fzQY0pv6qwfwuII5Xx2bmP57BBSuE0maxKailYlrI0e1EdfKCq6F3Th9FFDqpW7f"}
@@ -55,7 +56,7 @@ for match in matches:
         'winningAlliance': match['winning_alliance']
     })
 
-oprs = oprs.calc(simpleMatches)
+oprs, _ = oprs.calc(simpleMatches)
 
 minOPR = 100
 maxOPR = -1

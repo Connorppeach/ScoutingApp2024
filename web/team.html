@@ -206,6 +206,9 @@ socket.on('multipleFiles', (data)=>{
     line = ''
     match = data[i]
     scout = match.data
+    if(scout.name == undefined){
+      continue
+    }
     line += `<br><h2>${match.key.split('-')[1]}</h2>`
     line += `<br><h3> by ${scout.name}</h3><br>`
     line += `<br><h4>Position: ${scout.alliance}-${scout.position}</h4>`
