@@ -21,7 +21,7 @@
   <a href="/qrscan">Scan</a>
   <a href="/tba">TBA</a>
   <input id="username">
-  <select id="events" onchange="location.reload()">
+  <select id="events" class="matchScoutingDropdown" onchange="location.reload()">
     <option disabled selected value>select</option>
   </select>
   <select id="position" onchange="location.reload()">
@@ -41,9 +41,9 @@
 <select id="matchlist" onchange="setMatch()">
   <option disabled selected value> -- select an option -- </option>
 </select>
-<button onclick="prevMatch()">Prev</button>
-<button onclick="nextMatch()">Next</button>
-<button onclick="saveData()">Save</button>
+<button onclick="prevMatch()" class="matchScoutButton">Prev</button>
+<button onclick="nextMatch()" class="matchScoutButton">Next</button>
+<button onclick="saveData()" class="matchScoutButton">Save</button>
 <br>
 <div id="scoutingDiv" style="display: none;">
   <h3 id="teamKey">Team: </h3>
