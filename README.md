@@ -4,10 +4,14 @@ A remake of the scouting app for the 2024 FRC season
 
 Python is better for statistics, and that's what we need to be in the scouting app.
 ## Usage
-#### Initialization
+#### Installing
+`git clone https://github.com/Team4388/ScoutingApp2024`    
 `cd ScoutingApp2024`   
 `pip install -r requirements.txt`   
 `python3 ./main.py`   
+- On windows, for a python dependency, you must download https://visualstudio.microsoft.com/visual-cpp-build-tools/ and select 'Desktop development with C++' To download
+
+#### Initialization
 - go to: http://localhost:4388
 - To init a match, you must go to the 'TBA' tab and select the correct year, and event.
 - Then click 'Save Matches'. This will create a file at 'data/[event code]/matches.jsonpack'. This file is used to provides a list of matches and teams to the scouters.
