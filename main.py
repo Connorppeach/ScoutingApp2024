@@ -13,8 +13,8 @@ dataroot = os.getcwd() + "/data/"
 
 # Windows is weird, and flask expects linux-styled directories, even in windows.
 if platform in ['nt', 'win32', 'win64']:
-    webroot = webroot.split(':')[0].replace('\\', '/')
-    dataroot = dataroot.split(':')[0].replace('\\', '/')
+    webroot = webroot.split(':')[1].replace('\\', '/')
+    dataroot = dataroot.split(':')[1].replace('\\', '/')
 
 Username = 'Username'
 selectedEvent = ''
