@@ -3,12 +3,17 @@
 <head>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
 <link rel="stylesheet" type="text/css" href="/src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
 <script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <script src="/src/jsonpack.js"></script>
 <style>
   body {
     padding-top: 96px;
+  }
+  .container button {
+    width: 33%;
+    display: inline;
   }
 </style>
 </head>
@@ -38,47 +43,48 @@
   <a class="active" href="/scout/match">Match Scouting</a>
   <a href="/scout/pit">Pit Scouting</a>
 </div>
-<select id="matchlist" onchange="setMatch()">
-  <option disabled selected value> -- select an option -- </option>
-</select>
-<button onclick="prevMatch()">Prev</button>
-<button onclick="nextMatch()">Next</button>
-<button onclick="saveData()">Save</button>
-<br>
-<div id="scoutingDiv" style="display: none;">
-  <h3 id="teamKey">Team: </h3>
-  <h3 id="teamPosition">Position: </h3>
-  <label for="winningAlliance">winning Alliance:</label>
-  <select id="winningAlliance">
-    <option disabled selected value>select</option>
-    <option value=""></option>
-    <option value=""></option>
+<div class="container">
+  <select id="matchlist" onchange="setMatch()">
+    <option disabled selected value> -- select an option -- </option>
   </select>
+  <button onclick="prevMatch()">Prev</button>
+  <button onclick="saveData()">Save</button>
+  <button onclick="nextMatch()">Next</button>
   <br>
-  <label for="blueScore">Blue Score:</label>
-  <input type="number"" id="blueScore">
-  <br>
-  <label for="redScore">Red Score:</label>
-  <input type="number"" id="redScore">
-  <br><br>
-  <label for="teamPerformance">Team performance:</label>
-  <select id="teamPerformance">
-    <option value="2">Far above average</option>
-    <option value="1">Above average</option>
-    <option selected value="0">Average</option>
-    <option value="-1">Below average</option>
-    <option value="-2">Far below average</option>
-  </select>
-  <br>
-  <textarea id="teamNotes" placeholder="Notes" style="width: 500px;height: 500px;float: left;"></textarea>
-  <div style="display: inline;">
-    <p>Prompts:</p>
-    <p>Where did the robot generally score?</p>
-    <p>How fast was the robot able to score?</p>
-    <p>Did anything unusual happen?</p>
+  <div id="scoutingDiv" style="display: none;">
+    <h3 id="teamKey">Team: </h3>
+    <h3 id="teamPosition">Position: </h3>
+    <label for="winningAlliance">winning Alliance:</label>
+    <select id="winningAlliance">
+      <option disabled selected value>select</option>
+      <option value=""></option>
+      <option value=""></option>
+    </select>
+    <br>
+    <label for="blueScore">Blue Score:</label>
+    <input type="number"" id="blueScore">
+    <br>
+    <label for="redScore">Red Score:</label>
+    <input type="number"" id="redScore">
+    <br><br>
+    <label for="teamPerformance">Team performance:</label>
+    <select id="teamPerformance">
+      <option value="2">Far above average</option>
+      <option value="1">Above average</option>
+      <option selected value="0">Average</option>
+      <option value="-1">Below average</option>
+      <option value="-2">Far below average</option>
+    </select>
+    <br>
+    <textarea id="teamNotes" placeholder="Notes" style="width: 500px;height: 500px;float: left;"></textarea>
+    <div style="display: inline;">
+      <p>Prompts:</p>
+      <p>Where did the robot generally score?</p>
+      <p>How fast was the robot able to score?</p>
+      <p>Did anything unusual happen?</p>
+    </div>
   </div>
 </div>
-
 
 <script>
 const matchsel = getel('matchlist')

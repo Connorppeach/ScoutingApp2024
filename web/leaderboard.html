@@ -3,6 +3,7 @@
 <head>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
 <link rel="stylesheet" type="text/css" href="/src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
 <script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <script src="/src/jsonpack.js"></script>
@@ -46,7 +47,11 @@ body {
   <a href="/data/predictor">Predictor</a>
   <a href="/data/selector">Selector</a>
 </div>
-<table id='teamTable' style="display:none;float: left;"></table>
+
+<div class="container">
+  <table id='teamTable' style="display:none;float: left;"></table>
+</div>
+
 <script>
 const teamTable = getel('teamTable')
 const event = getel('events')

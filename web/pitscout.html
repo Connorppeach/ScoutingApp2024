@@ -3,6 +3,7 @@
 <head>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
 <link rel="stylesheet" type="text/css" href="/src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
 <script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <script src="/src/jsonpack.js"></script>
@@ -34,16 +35,19 @@
     <option value="blue-3">Blue-3</option>
   </select>
 </div>
-<div class="topnav" style="top:48px;">
-  <a href="/scout/match">Match Scouting</a>
-  <a class="active" href="/scout/pit">Pit Scouting</a>
+
+<div class="container">
+  <div class="topnav" style="top:48px;">
+    <a href="/scout/match">Match Scouting</a>
+    <a class="active" href="/scout/pit">Pit Scouting</a>
+  </div>
+  <select id="teamlist" onchange="setTeam()">
+    <option disabled selected value> -- select an option -- </option>
+  </select>
+  <button id="save" onclick="saveData()">Save</button>
+  <br>
+  <textarea id="notes" style="display: none; width: 100%; height: 500px;"></textarea>
 </div>
-<select id="teamlist" onchange="setTeam()">
-  <option disabled selected value> -- select an option -- </option>
-</select>
-<button id="save" onclick="saveData()">Save</button>
-<br>
-<textarea id="notes" style="display: none; width: 500px; height: 500px;"></textarea>
 
 <script>
 const teamlistsel = getel('teamlist')
@@ -58,6 +62,7 @@ onEventList(function(){
   selEvent = getel('events').value
   if(selEvent != ""){
     socket.emit('getTeams', selEvent)
+    socket.emit('getCurPitTeam')
   }
 })
 onMatchPosition(function(){})
@@ -70,14 +75,23 @@ socket.on('teamList',(data)=>{
   }
 })
 
+socket.on('curPitTeam',(data)=>{
+  teamlistsel.value = data
+  selteam = data
+  socket.emit('readFromFile', selEvent, `pitscout-${selteam}.jsonpack`)
+  notes.style.display = "none"
+})
+
 function setTeam(){
   selteam = teamlistsel.value
+  socket.emit('setCurPitTeam', selteam)
   socket.emit('readFromFile', selEvent, `pitscout-${selteam}.jsonpack`)
   notes.style.display = "none"
 }
 
 socket.on('eventFileContent', (dirname, filename, data)=>{
   notes.value = ''
+  teamlistsel.value = selteam
   if(data != ''){
     data = jsonpack.unpack(data)
     notes.value = data.notes

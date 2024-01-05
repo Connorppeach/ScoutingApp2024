@@ -3,6 +3,7 @@
 <head>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
 <link rel="stylesheet" type="text/css" href="/src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
 <script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <script src="/src/jsonpack.js"></script>
@@ -71,9 +72,11 @@ h4, h3, h2 {
   <a href="/data/selector">Selector</a>
   <a class='active' href="/data/" id='teamNavbarButton'></a>
 </div>
-<table id='matchTable' style="display:none;float: left;"></table>
-<div id="stats"></div>
-<div id="scouting"></div>
+<div class="container">
+  <table id='matchTable' style="display:none;float: left;"></table>
+  <div id="stats"></div>
+  <div id="scouting"></div>
+</div>
 <script>
 
 const matchTable = getel('matchTable')
@@ -115,12 +118,12 @@ socket.on('processedData', (data)=>{
   }
   allStats = data
   statsdiv.innerHTML += `<h1>${team}</h1>
-<h3>Votes: ${stats.votes} (#${getPlace('votes')})</h3>
-<h3>OPR: ${stats.OPR} (#${getPlace('OPR')})</h3>
-<h3>DPR: ${stats.DPR} (#${getPlace('DPR')})</h3>
-<h3>CCWM: ${stats.CCWM} (#${getPlace('CCWM')})</h3>
-<h3>Score: ${stats.avgScore} (#${getPlace('avgScore')})</h3>
-<h3>Win %: ${stats.winPercent}% (#${getPlace('winPercent')})</h3>`
+<h5>Votes: ${stats.votes} (#${getPlace('votes')})</h5>
+<h5>OPR: ${stats.OPR} (#${getPlace('OPR')})</h5>
+<h5>DPR: ${stats.DPR} (#${getPlace('DPR')})</h5>
+<h5>CCWM: ${stats.CCWM} (#${getPlace('CCWM')})</h5>
+<h5>Score: ${stats.avgScore} (#${getPlace('avgScore')})</h5>
+<h5>Win %: ${stats.winPercent}% (#${getPlace('winPercent')})</h5>`
 })
 
 socket.on('eventFileContent', (foldername, filename, data)=>{

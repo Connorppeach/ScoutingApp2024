@@ -5,6 +5,7 @@
   }
 </script>
 <link rel="stylesheet" type="text/css" href="./src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
 <script src="/src/jsonpack.js"></script>
 <script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
@@ -40,21 +41,23 @@
     <option value="blue-3">Blue-3</option>
   </select>  
 </div>
-<select name="year" id="year" onchange="year = getel('year').value; getEventsByYear()">
-  <option disabled selected value> -- select an option -- </option>
-  <option value="2020">2020</option>
-  <option value="2021">2021</option>
-  <option value="2022">2022</option>
-  <option value="2023">2023</option>
-  <option value="2024">2024</option>
-  <option value="2025">2025</option>
-</select>
+<div class="container">
+  <select name="year" id="year" onchange="year = getel('year').value; getEventsByYear()">
+    <option disabled selected value> -- select an option -- </option>
+    <option value="2020">2020</option>
+    <option value="2021">2021</option>
+    <option value="2022">2022</option>
+    <option value="2023">2023</option>
+    <option value="2024">2024</option>
+    <option value="2025">2025</option>
+  </select>
 
-<button id='back' onclick="window.location.reload(false)">Back</button>
-<button id='saveMatches' onclick="sendMatchesToServer()">Save Matches</button>
-<button id='saveTbaData' onclick="sendAllToServer()">Save All TBA Data</button>
-<p id="indicator"></p>
-<table id='table'></table>
+  <button id='back' onclick="window.location.reload(false)">Back</button>
+  <button id='saveMatches' onclick="sendMatchesToServer()">Save Matches</button>
+  <button id='saveTbaData' onclick="sendAllToServer()">Save All TBA Data</button>
+  <p id="indicator"></p>
+  <table id='table'></table>
+</div>
 
 <script>
 

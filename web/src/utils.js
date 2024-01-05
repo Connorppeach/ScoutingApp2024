@@ -101,6 +101,10 @@ function setMatchPosition(pos){
   socket.emit("setMatchPosition", pos)
 }
 
+function setCurMatch(match){
+  socket.emit('setCurMatch', match)
+}
+
 
 function onMatchPosition(func){
   socket.on('matchPosition', (matchPosition)=>{

@@ -2,6 +2,7 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="/src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
 <script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <script src="/src/jsonpack.js"></script>
@@ -34,15 +35,17 @@
   </select>
 </div>
 
-<select id="matchdropdown" onchange="listFileOfMatch()">
-  <option disabled selected value> -- select an option -- </option>
-</select>
-<p id="indicator">Getting Matches...</p>
-<button id="loadQrbutton" style="display:none;" onclick="getDataQrcode()">Send via qr codes</button><br>
-<input placeholder="ws://[Scouting IP]:4388" id="WifiAddress" style="display:none;" ></input>
-<button id="loadWifibutton" style="display:none;" onclick="sendWifi()">Send via wifi</button>
-<table id='table' style="display:none;"></table>
-<iframe id='iframe' style="display:none;"></iframe>
+<div class="container">
+  <select id="matchdropdown" onchange="listFileOfMatch()">
+    <option disabled selected value> -- select an option -- </option>
+  </select>
+  <p id="indicator">Getting Matches...</p>
+  <button id="loadQrbutton" style="display:none;" onclick="getDataQrcode()">Send via qr codes</button><br>
+  <input placeholder="ws://[Scouting IP]:4388" id="WifiAddress" style="display:none;" ></input>
+  <button id="loadWifibutton" style="display:none;" onclick="sendWifi()">Send via wifi</button>
+  <table id='table' style="display:none;"></table>
+  <iframe id='iframe' style="display:none;"></iframe>
+</div>
 
 <script>
   const matchdropdown = getel('matchdropdown')

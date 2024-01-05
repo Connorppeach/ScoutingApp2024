@@ -3,6 +3,7 @@
 <head>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
 <link rel="stylesheet" type="text/css" href="./src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
 <script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <script src="/src/jsonpack.js"></script>
@@ -10,28 +11,30 @@
 body {
   padding-top: 96px;
 }
-.team {
+.team, .teamgreen {
   border: 1px solid var(--text-1);
   padding: 5px;
   color:var(--text-1);
   width: fit-content;
   float: right;
   margin: 2px;
+
+  cursor: pointer;
+}
+.team:hover {
+  background-color: #059100;
 }
 .teamgreen {
-  border: 1px solid var(--text-1);
-  padding: 5px;
-  color:var(--text-1);
-  width: fit-content;
-  float: right;
-  margin: 2px;
   background-color: #059100;
 }
 button {
   float: left;
 }
-.topnav2 {
-
+.tableSelect {
+  cursor: pointer;
+}
+.tableSelect:hover {
+  background-color: #059100;
 }
 </style>
 </head>
@@ -63,8 +66,12 @@ button {
   <a href="/data/predictor">Predictor</a>
   <a href="/data/selector">Selector</a>
 </div>
-<table id='matchTable' style="display:none;float: left;"></table>
-<div id="teams"></div>
+
+<div class="container">
+  <div id="teams"></div>
+  <table id='matchTable' style="display:none;float: left;"></table>
+</div>
+
 <script>
 const matchTable = getel('matchTable')
 const event = getel('events')
@@ -111,17 +118,19 @@ function setMatchTable(){
   line += "<th>Blue 1</th>"
   line += "<th>Blue 2</th>"
   line += "<th>Blue 3</th>"
-  line += "</th>"
+  line += "</tr>"
 
   function getTableElem(match, alliance, num){
     th = '<th'
 
-    filename = `matchscout-${match.key}-${alliance}-${num}.jsonpack`
+    th += ` onclick='redirMatchScout("${alliance+'-'+num}","${match.key}")'`
 
+    filename = `matchscout-${match.key}-${alliance}-${num}.jsonpack`
+    th += " class='tableSelect"
     if(fileList.includes(filename)){
-      th += " class='green'>"
+      th += " green'>"
     }else{
-      th += '>'
+      th += "'>"
     }
 
     th += match[alliance][num-1]
@@ -138,7 +147,7 @@ function setMatchTable(){
     line += getTableElem(matchData[i], 'blue', 1)
     line += getTableElem(matchData[i], 'blue', 2)
     line += getTableElem(matchData[i], 'blue', 3)
-    line += "</th>"
+    line += "</tr>"
   }
   matchTable.innerHTML = line
   matchTable.style.display = ""
@@ -149,6 +158,22 @@ socket.on('teamList', (data)=>{
   setTeamList()
 })
 
+function redirMatchScout(position, match){
+  getel('position').value = position
+  setMatchPosition(position)
+  setCurMatch(match)
+  setTimeout(function() {
+    window.location.pathname = `/scout/match`
+  }, 500);
+}
+
+function redirPitScout(team){
+  socket.emit('setCurPitTeam', team)
+  setTimeout(function() {
+    window.location.pathname = `/scout/pit`
+  }, 500);
+}
+
 function setTeamList(){
   if(fileList.length == 0){return}
   if(teamList.length == 0){return}
@@ -156,6 +181,9 @@ function setTeamList(){
 
   for(i=0;i<teamList.length;i++){
     team = '<div'
+
+    team += ` onclick='redirPitScout("${teamList[i]}")'`
+
     filename = `pitscout-${teamList[i]}.jsonpack`
     if(fileList.includes(filename)){
       team += " class='teamgreen'>"

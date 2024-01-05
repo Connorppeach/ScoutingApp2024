@@ -3,6 +3,7 @@
 <head>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
 <link rel="stylesheet" type="text/css" href="/src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
 <script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <script src="/src/jsonpack.js"></script>
@@ -52,28 +53,30 @@ body {
   <a href="/data/predictor">Predictor</a>
   <a class='active' href="/data/selector">Selector</a>
 </div>
-<select id="calcMethod" onchange="refresh()">
-  <option selected value="opr">OPR (best)</option>
-  <option value="votes">Votes</option>
-  <option value="score">Avg Score</option>
-  <option value="wins">Win Percentage</option>
-</select>
-<button onclick="findBestMatches()">Find Best Matches</button>
-<br>
-<select id="team-1" onchange="refresh()">
-  <option selected value=''>Team not selected</option>
-</select>
-<select id="team-2" onchange="refresh()">
-  <option selected value=''>Team not selected</option>
-</select>
-<select id="team-3" onchange="refresh()">
-  <option selected value=''>Team not selected</option>
-</select>
-<br>
-<p id="info"></p>
-<br>
-<div id="teamList"></div>
-<br>
+<div class="container">
+  <select id="calcMethod" onchange="refresh()">
+    <option selected value="opr">OPR (best)</option>
+    <option value="votes">Votes</option>
+    <option value="score">Avg Score</option>
+    <option value="wins">Win Percentage</option>
+  </select>
+  <button onclick="findBestMatches()">Find Best Matches</button>
+  <br>
+  <select id="team-1" onchange="refresh()">
+    <option selected value=''>Team not selected</option>
+  </select>
+  <select id="team-2" onchange="refresh()">
+    <option selected value=''>Team not selected</option>
+  </select>
+  <select id="team-3" onchange="refresh()">
+    <option selected value=''>Team not selected</option>
+  </select>
+  <br>
+  <p id="info"></p>
+  <br>
+  <div id="teamList"></div>
+  <br>
+</div>
 
 
 

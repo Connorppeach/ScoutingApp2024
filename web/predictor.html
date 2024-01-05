@@ -3,12 +3,17 @@
 <head>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
 <link rel="stylesheet" type="text/css" href="/src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
 <script type="text/javascript" src="/src/socket.io.js"></script>
 <script type="text/javascript" src="/src/utils.js"></script>
 <script src="/src/jsonpack.js"></script>
 <style>
 body {
   padding-top: 96px;
+}
+.red, .blue {
+  display: inline;
+  width: 33%;
 }
 </style>
 </head>
@@ -41,38 +46,39 @@ body {
   <a href="/data/selector">Selector</a>
 </div>
 
-<select id="calcMethod" onchange="predict()">
-    <option selected value="opr-dpr">OPR & DPR (best)</option>
-    <option value="votes">Votes</option>
-    <option value="score">Avg Score</option>
-    <option value="wins">Win Percentage</option>
-</select>
-<br>
-<select class="red" id="red-1" onchange="predict()">
-  <option disabled selected value>select</option>
-</select>
-<select class="red" id="red-2" onchange="predict()">
-  <option disabled selected value>select</option>
-</select>
-<select class="red" id="red-3" onchange="predict()">
-  <option disabled selected value>select</option>
-</select>
-<span id="redIndicator"></span>
+<div class="container">
+  <select id="calcMethod" onchange="predict()">
+      <option selected value="opr-dpr">OPR & DPR (best)</option>
+      <option value="votes">Votes</option>
+      <option value="score">Avg Score</option>
+      <option value="wins">Win Percentage</option>
+  </select>
+  <br>
+  <h5 id="Indicator"></h5>
+  <select class="red" id="red-1" onchange="predict()">
+    <option disabled selected value>select</option>
+  </select>
+  <select class="red" id="red-2" onchange="predict()">
+    <option disabled selected value>select</option>
+  </select>
+  <select class="red" id="red-3" onchange="predict()">
+    <option disabled selected value>select</option>
+  </select>
 
-<br>
-<select class="blue" id="blue-1" onchange="predict()">
-  <option disabled selected value>select</option>
-</select>
-<select class="blue" id="blue-2" onchange="predict()">
-  <option disabled selected value>select</option>
-</select>
-<select class="blue" id="blue-3" onchange="predict()">
-  <option disabled selected value>select</option>
-</select>
-<span id="blueIndicator"></span>
+  <br>
+  <select class="blue" id="blue-1" onchange="predict()">
+    <option disabled selected value>select</option>
+  </select>
+  <select class="blue" id="blue-2" onchange="predict()">
+    <option disabled selected value>select</option>
+  </select>
+  <select class="blue" id="blue-3" onchange="predict()">
+    <option disabled selected value>select</option>
+  </select>
 
-<br>
-<p id="info"></p>
+  <br>
+  <p id="info"></p>
+</div>
 
 <script>
 const red1 = getel('red-1')
@@ -87,8 +93,7 @@ const event = getel('events')
 const calcMethod = getel('calcMethod')
 const info = getel('info')
 
-const redIndicator = getel('redIndicator')
-const blueIndicator = getel('blueIndicator')
+const Indicator = getel('Indicator')
 
 let teamData
 
@@ -128,14 +133,11 @@ function round2(x, n){
 
 function results(redScore, blueScore){
     if(redScore > blueScore){
-        redIndicator.innerText = '< Winner'
-        blueIndicator.innerText = ''
+        Indicator.innerText = 'Red wins!'
     }else if(blueScore > redScore){
-        redIndicator.innerText = ''
-        blueIndicator.innerText = '< Winner'
+        Indicator.innerText = 'Blue wins!'
     }else{
-        redIndicator.innerText = ' Tie'
-        blueIndicator.innerText = ' Tie'
+        Indicator.innerText = 'tie'
     }
 }
 

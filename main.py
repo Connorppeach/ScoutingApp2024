@@ -3,7 +3,8 @@ from sys import platform
 import socketio as sioclient
 from time import sleep
 from flask import Flask, render_template, session, request, send_from_directory
-from flask_socketio import SocketIO, test_client, emit
+from flask_socketio import test_client, emit
+from flask_socketio import SocketIO
 
 import jsonpack
 import oprs
@@ -20,6 +21,7 @@ Username = 'Username'
 selectedEvent = ''
 selectedPosition = 'red-1'
 curMatch = ''
+curPitTeam = ''
 
 def makeDir(path):
     if not os.path.exists(path):
@@ -181,7 +183,11 @@ def getSelectedEvent():
 @socketio.on('setSelectedEvent')
 def setSelectedEvent(data):
     global selectedEvent
+    global curMatch
+    global curPitTeam
     selectedEvent = data
+    curMatch = ''
+    curPitTeam = ''
     socketio.emit('selectedEvent', selectedEvent)
 
 
@@ -209,6 +215,19 @@ def setCurMatch(data):
     global curMatch
     curMatch = data
     socketio.emit('curMatch', curMatch)
+
+
+
+@socketio.on('getCurPitTeam')
+def getCurPitTeam():
+    global curPitTeam
+    socketio.emit('curPitTeam', curPitTeam)
+
+@socketio.on('setCurPitTeam')
+def setCurPitTeam(data):
+    global curPitTeam
+    curPitTeam = data
+    socketio.emit('curPitTeam', curPitTeam)
 
 
 
