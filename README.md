@@ -46,6 +46,6 @@ Python is better for statistics, and that's what we need to be in the scouting a
 ## Also TODO
 - ~~Finish writing optional wifi transfer mode~~
 - ~~Add a "This requires an internet connection" warning for anything that requires an internet connection~~
-- Make the UI GOOD!!
-- ^ make it mobile friendly for the tablets
+- ~~Make the UI GOOD!!~~
+- ~~^ make it mobile friendly for the tablets~~
 - Implement a 'light mode'
