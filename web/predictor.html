@@ -108,6 +108,7 @@ onMatchPosition(function(){})
 
 socket.on('processedData', (data)=>{
     console.log(data)
+    data = jsonpack.unpack(data)
     teamData = data
     line = ''
     for(i=0;i<data.length;i++){
@@ -176,8 +177,8 @@ function predict(){
             results(redPR, bluePR)
             break;
         case 'votes':
-            redVotes = (red1team.votes + red2team.votes + red3team.votes)
-            blueVotes = (blue1team.votes + blue2team.votes + blue3team.votes)
+            redVotes = (red1team.overallPerformance + red2team.overallPerformance + red3team.overallPerformance)
+            blueVotes = (blue1team.overallPerformance + blue2team.overallPerformance + blue3team.overallPerformance)
             line += `Red Votes: ${redVotes}\n`
             line += `Blue Votes: ${blueVotes}\n`
             results(redVotes, blueVotes)

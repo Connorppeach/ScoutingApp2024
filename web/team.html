@@ -19,7 +19,7 @@ body {
   float: left;
   display: block;
 }
-#stats h3 {
+#stats h6 {
   display: block;
 }
 #scouting {
@@ -38,7 +38,7 @@ body {
   word-wrap:anywhere;
   min-width: 300px;
 }
-h4, h3, h2 {
+h6, h4, h3, h2 {
   display: inline;
 }
 </style>
@@ -75,8 +75,8 @@ h4, h3, h2 {
 <div class="container">
   <table id='matchTable' style="display:none;float: left;"></table>
   <div id="stats"></div>
-  <div id="scouting"></div>
 </div>
+<div id="scouting"></div>
 <script>
 
 const matchTable = getel('matchTable')
@@ -107,6 +107,7 @@ onEventList(function(){
 onMatchPosition(function(){})
 
 socket.on('processedData', (data)=>{
+  data = jsonpack.unpack(data)
   console.log(data)
   for(i=0;i<data.length;i++){
     if(data[i].key == team){
@@ -118,10 +119,13 @@ socket.on('processedData', (data)=>{
   }
   allStats = data
   statsdiv.innerHTML += `<h1>${team}</h1>
-<h5>Votes: ${stats.votes} (#${getPlace('votes')})</h5>
+<h5>A-votes: ${stats.autoPerformance} (#${getPlace('autoPerformance')})</h5>
+<h5>T-votes: ${stats.teleopPerformance} (#${getPlace('teleopPerformance')})</h5>
+<h5>Votes: ${stats.overallPerformance} (#${getPlace('overallPerformance')})</h5>
+<h5>S-ness: ${stats.scoreArea}</h5>
 <h5>OPR: ${stats.OPR} (#${getPlace('OPR')})</h5>
 <h5>DPR: ${stats.DPR} (#${getPlace('DPR')})</h5>
-<h5>CCWM: ${stats.CCWM} (#${getPlace('CCWM')})</h5>
+<h5>CCWM: ${stats.CCWM}</h5>
 <h5>Score: ${stats.avgScore} (#${getPlace('avgScore')})</h5>
 <h5>Win %: ${stats.winPercent}% (#${getPlace('winPercent')})</h5>`
 })
@@ -190,6 +194,9 @@ socket.on('eventFileContent', (foldername, filename, data)=>{
 
 function getPerformanceStr(n){
   switch(n){
+    case -2:
+      return 'Far below Average'
+      break;
     case -1:
       return 'Below Average'
       break;
@@ -198,6 +205,9 @@ function getPerformanceStr(n){
       break;
     case 1:
       return 'Above Average'
+      break;
+    case 2:
+      return 'Far above Average'
       break;
   }
 }
@@ -214,11 +224,14 @@ socket.on('multipleFiles', (data)=>{
     }
     line += `<br><h2>${match.key.split('-')[1]}</h2>`
     line += `<br><h3> by ${scout.name}</h3><br>`
-    line += `<br><h4>Position: ${scout.alliance}-${scout.position}</h4>`
-    line += `<br><h4>Blue score: ${scout.blueScore}</h4>`
-    line += `<br><h4>Red score: ${scout.redScore}</h4>`
-    line += `<br><h4>Win: ${scout.win}</h4>`
-    line += `<br><h4>Performance: ${getPerformanceStr(scout.performance)}</h4>`
+    line += `<br><h6>Position: ${scout.alliance}-${scout.position}</h6>`
+    line += `<br><h6>Blue score: ${scout.blueScore}</h6>`
+    line += `<br><h6>Red score: ${scout.redScore}</h6>`
+    line += `<br><h6>Win: ${scout.win}</h6>`
+    line += `<br><h6>A-vote: ${getPerformanceStr(scout.autoPerformance)}</h6>`
+    line += `<br><h6>T-vote: ${getPerformanceStr(scout.teleopPerformance)}</h6>`
+    line += `<br><h6>Vote: ${getPerformanceStr(scout.overallPerformance)}</h6>`
+    line += `<br><h6>Condition: ${scout.robotCondition}</h6>`
     line += `<br><p>${scout.notes}</p>`
     scoutingdiv.innerHTML += `<div id='scoutbox'>${line}</div>`
   }

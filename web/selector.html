@@ -54,21 +54,21 @@ body {
   <a class='active' href="/data/selector">Selector</a>
 </div>
 <div class="container">
-  <select id="calcMethod" onchange="refresh()">
+  <select id="calcMethod" onchange="refresh()"  class="half">
     <option selected value="opr">OPR (best)</option>
     <option value="votes">Votes</option>
     <option value="score">Avg Score</option>
     <option value="wins">Win Percentage</option>
   </select>
-  <button onclick="findBestMatches()">Find Best Matches</button>
+  <button onclick="findBestMatches()" class="half">Find Best Matches</button>
   <br>
-  <select id="team-1" onchange="refresh()">
+  <select id="team-1" onchange="refresh()" class="third">
     <option selected value=''>Team not selected</option>
   </select>
-  <select id="team-2" onchange="refresh()">
+  <select id="team-2" onchange="refresh()" class="third">
     <option selected value=''>Team not selected</option>
   </select>
-  <select id="team-3" onchange="refresh()">
+  <select id="team-3" onchange="refresh()" class="third">
     <option selected value=''>Team not selected</option>
   </select>
   <br>
@@ -105,6 +105,7 @@ onMatchPosition(function(){})
 
 socket.on('processedData', (data)=>{
   console.log(data)
+  data = jsonpack.unpack(data)
   teamData = data
   line = ''
   for(i=0;i<data.length;i++){
@@ -151,21 +152,21 @@ function getVals(tmpteam1, tmpteam2, tmpteam3){
   if(tmpteam1 == undefined){
     tmpteam1 = {}
     tmpteam1.OPR = 0
-    tmpteam1.votes = 0
+    tmpteam1.overallPerformance = 0
     tmpteam1.avgScore = 0
     tmpteam1.winPercent = 0
   }
   if(tmpteam2 == undefined){
     tmpteam2 = {}
     tmpteam2.OPR = 0
-    tmpteam2.votes = 0
+    tmpteam2.overallPerformance = 0
     tmpteam2.avgScore = 0
     tmpteam2.winPercent = 0
   }
   if(tmpteam3 == undefined){
     tmpteam3 = {}
     tmpteam3.OPR = 0
-    tmpteam3.votes = 0
+    tmpteam3.overallPerformance = 0
     tmpteam3.avgScore = 0
     tmpteam3.winPercent = 0
   }
@@ -175,7 +176,7 @@ function getVals(tmpteam1, tmpteam2, tmpteam3){
       return  round2(tmpteam1.OPR + tmpteam2.OPR + tmpteam3.OPR, 2)
       break;
     case 'votes':
-      return round2(tmpteam1.votes + tmpteam1.votes + tmpteam1.votes, 2)
+      return round2(tmpteam1.overallPerformance + tmpteam1.overallPerformance + tmpteam1.overallPerformance, 2)
       break;
     case 'score':
       return round2(tmpteam1.avgScore + tmpteam2.avgScore + tmpteam3.avgScore, 2)
@@ -193,21 +194,21 @@ function refresh(){
   if(tmpteam1 == undefined){
     tmpteam1 = {}
     tmpteam1.OPR = 0
-    tmpteam1.votes = 0
+    tmpteam1.overallPerformance = 0
     tmpteam1.avgScore = 0
     tmpteam1.winPercent = 0
   }
   if(tmpteam2 == undefined){
     tmpteam2 = {}
     tmpteam2.OPR = 0
-    tmpteam2.votes = 0
+    tmpteam2.overallPerformance = 0
     tmpteam2.avgScore = 0
     tmpteam2.winPercent = 0
   }
   if(tmpteam3 == undefined){
     tmpteam3 = {}
     tmpteam3.OPR = 0
-    tmpteam3.votes = 0
+    tmpteam3.overallPerformance = 0
     tmpteam3.avgScore = 0
     tmpteam3.winPercent = 0
   }
@@ -223,11 +224,11 @@ function refresh(){
       line += `Total OPR: ${teamOPR}`
       break;
     case 'votes':
-      teamvotes = round2(tmpteam1.votes + tmpteam1.votes + tmpteam1.votes, 2)
+      teamvotes = round2(tmpteam1.overallPerformance + tmpteam1.overallPerformance + tmpteam1.overallPerformance, 2)
 
-      line += `Team 1 votes: ${tmpteam1.votes}\n`
-      line += `Team 2 votes: ${tmpteam2.votes}\n`
-      line += `Team 3 votes: ${tmpteam3.votes}\n`
+      line += `Team 1 votes: ${tmpteam1.overallPerformance}\n`
+      line += `Team 2 votes: ${tmpteam2.overallPerformance}\n`
+      line += `Team 3 votes: ${tmpteam3.overallPerformance}\n`
       line += `Total votes: ${teamvotes}`
 
       break;

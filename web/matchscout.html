@@ -11,10 +11,6 @@
   body {
     padding-top: 96px;
   }
-  .container button {
-    width: 33%;
-    display: inline;
-  }
 </style>
 </head>
 
@@ -47,9 +43,9 @@
   <select id="matchlist" onchange="setMatch()">
     <option disabled selected value> -- select an option -- </option>
   </select>
-  <button onclick="prevMatch()">Prev</button>
-  <button onclick="saveData()">Save</button>
-  <button onclick="nextMatch()">Next</button>
+  <button onclick="prevMatch()" class="third">Prev</button>
+  <button onclick="saveData()" class="third">Save</button>
+  <button onclick="nextMatch()" class="third">Next</button>
   <br>
   <div id="scoutingDiv" style="display: none;">
     <h3 id="teamKey">Team: </h3>
@@ -57,18 +53,53 @@
     <label for="winningAlliance">winning Alliance:</label>
     <select id="winningAlliance">
       <option disabled selected value>select</option>
-      <option value=""></option>
-      <option value=""></option>
+      <option value="">Red</option>
+      <option value="">Blue</option>
     </select>
     <br>
-    <label for="blueScore">Blue Score:</label>
-    <input type="number"" id="blueScore">
+    <label for="blueScore" class="left">Blue Score</label>
+    <label for="redScore" class="right">Red Score</label>
     <br>
-    <label for="redScore">Red Score:</label>
-    <input type="number"" id="redScore">
-    <br><br>
-    <label for="teamPerformance">Team performance:</label>
-    <select id="teamPerformance">
+    <input type="number" id="blueScore" placeholder="Blue Score" class="half">
+    <input type="number" id="redScore" placeholder="Red Score" class="half">
+    <br>
+    <label for="robotCondition" class="left">Robot condition</label>
+    <label for="scoreArea" class="right">Score area</label>
+    <br>
+    <select id="robotCondition" class="half">
+      <option selected value="">Fully functional</option>
+      <option value="broken?">Somthing was broken (Maybe)?</option>
+      <option value="broken">Somthing was broken</option>
+      <option value="somework">Did not work during part of the match</option>
+      <option value="notwork">Did not work at all</option>
+    </select>
+    <select id="scoreArea" class="half">
+      <option value="2">Exclusively in speaker</option>
+      <option value="1">Mostly in speaker</option>
+      <option selected value="0">Both</option>
+      <option value="-1">Mostly in AMP</option>
+      <option value="-2">Exclusively in AMP</option>
+    </select>
+    <br>
+    <label for="autoPerformance" class="left">Auto performance</label>
+    <label for="teleopPerformance" class="right">Teleop performance</label>
+    <br>
+    <select id="autoPerformance" class="half">
+      <option value="4">Many rings</option>
+      <option value="2">One ring</option>
+      <option value="1">Auto taxi</option>
+      <option selected value="0">No auto (Joe Johnson)</option>
+    </select>
+    <select id="teleopPerformance" class="half">
+      <option value="2">Far above average</option>
+      <option value="1">Above average</option>
+      <option selected value="0">Average</option>
+      <option value="-1">Below average</option>
+      <option value="-2">Far below average</option>
+    </select>
+    <br>
+    <label for="overallPerformance" class="left">Overall performance</label>
+    <select id="overallPerformance">
       <option value="2">Far above average</option>
       <option value="1">Above average</option>
       <option selected value="0">Average</option>
@@ -79,9 +110,9 @@
     <textarea id="teamNotes" placeholder="Notes" style="width: 500px;height: 500px;float: left;"></textarea>
     <div style="display: inline;">
       <p>Prompts:</p>
-      <p>Where did the robot generally score?</p>
       <p>How fast was the robot able to score?</p>
       <p>Did anything unusual happen?</p>
+      <p>Did the robot blow up?</p>
     </div>
   </div>
 </div>
@@ -95,7 +126,11 @@ const teamPosition = getel('teamPosition')
 const winningAlliance = getel('winningAlliance')
 const blueScore = getel('blueScore')
 const redScore = getel('redScore')
-const teamPerformance = getel('teamPerformance')
+const robotCondition = getel('robotCondition')
+const scoreArea = getel('scoreArea')
+const autoPerformance = getel('autoPerformance')
+const teleopPerformance = getel('teleopPerformance')
+const overallPerformance = getel('overallPerformance')
 const teamNotes = getel('teamNotes')
 
 const username = getel('username')
@@ -109,7 +144,6 @@ let matchIndex = -1
 let alliance = ''
 let position = 0
 let teamName = ''
-
 
 
 onOpen(function(){
@@ -159,13 +193,21 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
         winningAlliance.value = matchData.win
         blueScore.value = matchData.blueScore
         redScore.value = matchData.redScore
-        teamPerformance.value = matchData.performance
+        scoreArea.value = matchData.scoreArea
+        robotCondition.value = matchData.robotCondition
+        autoPerformance.value = matchData.autoPerformance
+        teleopPerformance.value = matchData.teleopPerformance
+        overallPerformance.value = matchData.overallPerformance
         teamNotes.value = matchData.notes
       }else{
         winningAlliance.value = ''
         blueScore.value = ''
         redScore.value = ''
-        teamPerformance.value = 0
+        scoreArea.value = 0
+        robotCondition.value = ''
+        autoPerformance.value = 0
+        teleopPerformance.value = 0
+        overallPerformance.value = 0
         teamNotes.value = ''
       }
 
@@ -225,7 +267,11 @@ function saveData(){
     win: (winningAlliance.value=='True'),
     blueScore: Number(blueScore.value),
     redScore: Number(redScore.value),
-    performance: Number(teamPerformance.value),
+    scoreArea: Number(scoreArea.value),
+    robotCondition: (robotCondition.value),
+    autoPerformance: Number(autoPerformance.value),
+    teleopPerformance: Number(teleopPerformance.value),
+    overallPerformance: Number(overallPerformance.value),
     notes: teamNotes.value
   })
   socket.emit('writeToFile', selEvent, `matchscout-${curMatch}-${curPosition}.jsonpack`, data)

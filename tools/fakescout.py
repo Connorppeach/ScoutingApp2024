@@ -34,11 +34,11 @@ def getOPR(key):
         if opr['key'] == key:
             return opr['OPR']
 
-def randPerformance(opr, minOPR, maxOPR):
+def randPerformance():
     # x = uniform(minOPR, maxOPR)
     # x = (x-minOPR)/maxOPR
     # x = round((x*2)-1,0)
-    return int(random.randint(-1, 1))
+    return int(random.randint(-2, 2))
 
 makeDir(dataroot)
 makeDir(eventroot)
@@ -86,7 +86,11 @@ for match in simpleMatches:
             'win': match['winningAlliance'] == 'blue',
             'blueScore': match['bluescore'],
             'redScore': match['redscore'],
-            'performance': randPerformance(getOPR(team), minOPR, maxOPR),
+            'scoreArea': randPerformance(),
+            'robotCondition': (['', 'broken?', 'broken', 'somework', 'notwork'])[int(random.randint(0, 4))],
+            'autoPerformance': randPerformance(),
+            'teleopPerformance': randPerformance(),
+            'overallPerformance': randPerformance(),
             'notes': f'Team {team} does seem to have played in this match'
         })
         filename = f'matchscout-{match["key"]}-blue-{i+1}.jsonpack'
@@ -100,7 +104,11 @@ for match in simpleMatches:
             'win': match['winningAlliance'] == 'red',
             'blueScore': match['bluescore'],
             'redScore': match['redscore'],
-            'performance': randPerformance(getOPR(team), minOPR, maxOPR),
+            'scoreArea': randPerformance(),
+            'robotCondition': (['', 'broken?', 'broken', 'somework', 'notwork'])[int(random.randint(0, 4))],
+            'autoPerformance': randPerformance(),
+            'teleopPerformance': randPerformance(),
+            'overallPerformance': randPerformance(),
             'notes': f'Team {team} does seem to have played in this match'
         })
         filename = f'matchscout-{match["key"]}-red-{i+1}.jsonpack'

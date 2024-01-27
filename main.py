@@ -300,10 +300,10 @@ def gePitScoutingData(eventName, teamName):
 
 @socketio.on('getProcessedData')
 def getProcessedData(eventName):
+    if eventName == '': socketio.emit('processedData', ([], False)); return
     data, pinvInaccuracy = oprs.getProcessedData(eventName)
-    if eventName == '': return
     print(data)
-    socketio.emit('processedData', (data, pinvInaccuracy))
+    socketio.emit('processedData', (jsonpack.pack(data), pinvInaccuracy))
     
 
 

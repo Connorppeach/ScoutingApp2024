@@ -258,8 +258,14 @@ def getProcessedData(eventName):
 
         team = scoutdata['team']
         makeObject(teamResults, team)
-        makeNumber(teamResults[team], 'votes')
-        teamResults[team]['votes'] += scoutdata['performance']
+        makeNumber(teamResults[team], 'autoPerformance')
+        teamResults[team]['autoPerformance'] += int(scoutdata['autoPerformance'])
+        makeNumber(teamResults[team], 'teleopPerformance')
+        teamResults[team]['teleopPerformance'] += int(scoutdata['teleopPerformance'])
+        makeNumber(teamResults[team], 'overallPerformance')
+        teamResults[team]['overallPerformance'] += int(scoutdata['overallPerformance'])
+        makeNumber(teamResults[team], 'scoreArea')
+        teamResults[team]['scoreArea'] += int(scoutdata['scoreArea'])
 
     #print(tmpMatchData)
     oprData = []
@@ -302,6 +308,7 @@ def getProcessedData(eventName):
                 'redscore': redscore
             })
     oprData, pinvInaccuracy = calc(oprData)
+
     
     for teamOPR in oprData:
         key = teamOPR['key']
@@ -321,9 +328,31 @@ def getProcessedData(eventName):
             x = sum(teamResult['wins'])/len(teamResult['wins'])
             teamOPR['winPercent'] = round(x*100, 2)
 
-        makeNumber(teamOPR, 'votes')
+
+
+        makeNumber(teamOPR, 'autoPerformance')
         try:
-            teamOPR['votes'] = teamResult['votes']
+            teamOPR['autoPerformance'] = teamResult['autoPerformance']
         except:
-            teamOPR['votes'] = 0
+            teamOPR['autoPerformance'] = 0
+
+        makeNumber(teamOPR, 'teleopPerformance')
+        try:
+            teamOPR['teleopPerformance'] = teamResult['teleopPerformance']
+        except:
+            teamOPR['teleopPerformance'] = 0
+
+        makeNumber(teamOPR, 'overallPerformance')
+        try:
+            teamOPR['overallPerformance'] = teamResult['overallPerformance']
+        except:
+            teamOPR['overallPerformance'] = 0
+
+        makeNumber(teamOPR, 'scoreArea')
+        try:
+            teamOPR['scoreArea'] = teamResult['scoreArea']
+        except:
+            teamOPR['scoreArea'] = 0
+
+
     return oprData, pinvInaccuracy
