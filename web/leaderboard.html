@@ -79,11 +79,12 @@ socket.on('processedData', (data, pinvInaccuracy)=>{
 <th onclick='sortTable(teamTable, 2)'>T-votes</th>
 <th onclick='sortTable(teamTable, 3)'>Votes</th>
 <th onclick='sortTable(teamTable, 4)'>S-ness</th>
-<th onclick='sortTable(teamTable, 5)'>OPR</th>
-<th onclick='sortTable(teamTable, 6)'>DPR</th>
-<th onclick='sortTable(teamTable, 7)'>CCWM</th>
-<th onclick='sortTable(teamTable, 8)'>Score</th>
-<th onclick='sortTable(teamTable, 9)'>Win %</th>
+<th onclick='sortTable(teamTable, 5)'>Stage</th>
+<th onclick='sortTable(teamTable, 6)'>OPR</th>
+<th onclick='sortTable(teamTable, 7)'>DPR</th>
+<th onclick='sortTable(teamTable, 8)'>CCWM</th>
+<th onclick='sortTable(teamTable, 9)'>Score</th>
+<th onclick='sortTable(teamTable, 10)'>Win %</th>
 </tr>`
   for(i=0;i<data.length;i++){
     teamTable.innerHTML += `<tr class='selectRow' onclick='redir("/data/team/${data[i].key}")'>
@@ -92,6 +93,7 @@ socket.on('processedData', (data, pinvInaccuracy)=>{
 <th>${data[i].teleopPerformance}</th>
 <th>${data[i].overallPerformance}</th>
 <th>${data[i].scoreArea}</th>
+<th>${data[i].endState}</th>
 <th>${data[i].OPR}</th>
 <th>${data[i].DPR}</th>
 <th>${data[i].CCWM}</th>

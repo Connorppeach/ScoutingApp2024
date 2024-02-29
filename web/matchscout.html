@@ -50,18 +50,6 @@
   <div id="scoutingDiv" style="display: none;">
     <h3 id="teamKey">Team: </h3>
     <h3 id="teamPosition">Position: </h3>
-    <label for="winningAlliance">winning Alliance:</label>
-    <select id="winningAlliance">
-      <option disabled selected value>select</option>
-      <option value="">Red</option>
-      <option value="">Blue</option>
-    </select>
-    <br>
-    <label for="blueScore" class="left">Blue Score</label>
-    <label for="redScore" class="right">Red Score</label>
-    <br>
-    <input type="number" id="blueScore" placeholder="Blue Score" class="half">
-    <input type="number" id="redScore" placeholder="Red Score" class="half">
     <br>
     <label for="robotCondition" class="left">Robot condition</label>
     <label for="scoreArea" class="right">Score area</label>
@@ -107,6 +95,19 @@
       <option value="-2">Far below average</option>
     </select>
     <br>
+    <label for="endState">End State</label>
+    <select id="endState">
+      <option value="5">Hung on stage with 1+ robots</option>
+      <option value="3">Hung on stage alone</option>
+      <option selected value="0">None</option>
+    </select>
+    <br>
+    <label for="blueScore" class="left">Blue Score</label>
+    <label for="redScore" class="right">Red Score</label>
+    <br>
+    <input type="number" id="blueScore" placeholder="Blue Score" class="half">
+    <input type="number" id="redScore" placeholder="Red Score" class="half">
+    <br>
     <textarea id="teamNotes" placeholder="Notes" style="width: 500px;height: 500px;float: left;"></textarea>
     <div style="display: inline;">
       <p>Prompts:</p>
@@ -123,14 +124,14 @@ const scoutingDiv = getel('scoutingDiv')
 
 const teamKey = getel('teamKey')
 const teamPosition = getel('teamPosition')
-const winningAlliance = getel('winningAlliance')
-const blueScore = getel('blueScore')
-const redScore = getel('redScore')
 const robotCondition = getel('robotCondition')
 const scoreArea = getel('scoreArea')
 const autoPerformance = getel('autoPerformance')
 const teleopPerformance = getel('teleopPerformance')
 const overallPerformance = getel('overallPerformance')
+const endState = getel('endState')
+const blueScore = getel('blueScore')
+const redScore = getel('redScore')
 const teamNotes = getel('teamNotes')
 
 const username = getel('username')
@@ -182,32 +183,27 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
     case 'matchscout':
       teamKey.innerText = 'Team: '+teamName
       teamPosition.innerText = 'Position: '+curPosition
-      
-      winningAlliance.children[1].value = 'true'
-      winningAlliance.children[1].innerText = alliance
-      winningAlliance.children[2].value = 'false'
-      winningAlliance.children[2].innerText = (alliance=='blue' ? 'red' : 'blue')
 
       if(data != ''){
         matchData = jsonpack.unpack(data)
-        winningAlliance.value = matchData.win
         blueScore.value = matchData.blueScore
-        redScore.value = matchData.redScore
-        scoreArea.value = matchData.scoreArea
         robotCondition.value = matchData.robotCondition
         autoPerformance.value = matchData.autoPerformance
         teleopPerformance.value = matchData.teleopPerformance
         overallPerformance.value = matchData.overallPerformance
+        redScore.value = matchData.redScore
+        scoreArea.value = matchData.scoreArea
+        endState.value = matchData.endState
         teamNotes.value = matchData.notes
       }else{
-        winningAlliance.value = ''
-        blueScore.value = ''
-        redScore.value = ''
         scoreArea.value = 0
         robotCondition.value = ''
         autoPerformance.value = 0
         teleopPerformance.value = 0
         overallPerformance.value = 0
+        blueScore.value = ''
+        redScore.value = ''
+        endState.value = 0
         teamNotes.value = ''
       }
 
@@ -215,6 +211,15 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
     break;
   }
 })
+
+function getWinningAlliance(){
+  blueWins = blueScore.value > redScore.value
+  if(alliance == "blue"){
+    return blueWins
+  }else{
+    return !blueWins
+  }
+}
 
 function setMatch(){
   curMatch = matchsel.value
@@ -264,14 +269,15 @@ function saveData(){
     alliance: alliance,
     position: Number(position),
     team: teamName,
-    win: (winningAlliance.value=='True'),
-    blueScore: Number(blueScore.value),
-    redScore: Number(redScore.value),
+    win: getWinningAlliance(),
     scoreArea: Number(scoreArea.value),
     robotCondition: (robotCondition.value),
     autoPerformance: Number(autoPerformance.value),
     teleopPerformance: Number(teleopPerformance.value),
     overallPerformance: Number(overallPerformance.value),
+    endState: Number(endState.value),
+    blueScore: Number(blueScore.value),
+    redScore: Number(redScore.value),
     notes: teamNotes.value
   })
   socket.emit('writeToFile', selEvent, `matchscout-${curMatch}-${curPosition}.jsonpack`, data)

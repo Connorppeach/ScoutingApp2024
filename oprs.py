@@ -264,6 +264,8 @@ def getProcessedData(eventName):
         teamResults[team]['teleopPerformance'] += int(scoutdata['teleopPerformance'])
         makeNumber(teamResults[team], 'overallPerformance')
         teamResults[team]['overallPerformance'] += int(scoutdata['overallPerformance'])
+        makeNumber(teamResults[team], 'endState')
+        teamResults[team]['endState'] += int(scoutdata['endState'])
         makeNumber(teamResults[team], 'scoreArea')
         teamResults[team]['scoreArea'] += int(scoutdata['scoreArea'])
 
@@ -347,6 +349,12 @@ def getProcessedData(eventName):
             teamOPR['overallPerformance'] = teamResult['overallPerformance']
         except:
             teamOPR['overallPerformance'] = 0
+
+        makeNumber(teamOPR, 'endState')
+        try:
+            teamOPR['endState'] = teamResult['endState']
+        except:
+            teamOPR['endState'] = 0
 
         makeNumber(teamOPR, 'scoreArea')
         try:
