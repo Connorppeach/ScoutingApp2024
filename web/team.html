@@ -41,6 +41,30 @@ body {
 h6, h4, h3, h2 {
   display: inline;
 }
+
+#plotter {
+  /* display: block;
+  position: relative;
+  width: 100%;
+  height: auto;
+  padding-bottom: 1290px; */
+}
+
+img, canvas {
+  /* display:block;
+  position:absolute;
+  position:absolute;
+  width:100%; */
+}
+
+canvas {
+  z-index: 1;
+}
+
+img {
+  background-color:#303030;
+  z-index: -1;
+}
 </style>
 </head>
 
@@ -75,8 +99,19 @@ h6, h4, h3, h2 {
 <div class="container">
   <table id='matchTable' style="display:none;float: left;"></table>
   <div id="stats"></div>
+  <br>
+  <canvas width = "1290" height = "650"></canvas>
+  <img src="/src/field.svg"></img>
+  <select class="third" onchange="window.toggleMode()" id="plotChooser">
+    <option value="auto" selected>Plot autos</option>
+    <option value="tele">Plot Teleop</option>
+  </select>
 </div>
+
+
 <div id="scouting"></div>
+
+<script src="/src/field.js"></script>
 <script>
 
 const matchTable = getel('matchTable')
@@ -87,6 +122,11 @@ const scoutingdiv = getel('scouting')
 const team = window.location.href.split('/')[5]
 getel('teamNavbarButton').href = "/data/team/"+team
 getel('teamNavbarButton').innerText = team
+
+let nodeColor = 'rgba(127,127,127,0.5)'
+const nodeRadius = 0
+const lineWidth = 0.004
+startDisplay()
 
 let matchData = []
 let matchFileList = []
@@ -222,6 +262,9 @@ socket.on('multipleFiles', (data)=>{
     if(scout.name == undefined){
       continue
     }
+
+    importPath(scout.nodes, (scout.alliance=="red"))
+
     line += `<br><h2>${match.key.split('-')[1]}</h2>`
     line += `<br><h3> by ${scout.name}</h3><br>`
     line += `<br><h6>Position: ${scout.alliance}-${scout.position}</h6>`

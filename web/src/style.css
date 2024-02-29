@@ -29,6 +29,7 @@ body {
   height: 48px;
   overflow: hidden;
   background-color: var(--backround-1);
+  z-index: 1;
 }
 
 .topnav a {
