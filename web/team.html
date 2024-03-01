@@ -185,8 +185,12 @@ socket.on('eventFileContent', (foldername, filename, data)=>{
       
       console.log(pitData)
       line = ''
-      line += `<h2>Pit Scouting</h2>`
-      line += `<h4> By ${pitData.name}</h4>`
+      line += `<br><h2>Pit Scouting</h2>`
+      line += `<br><h4> By ${pitData.name}</h4>`
+      line += `<br><h6>Drive type: ${pitData.driveType}</h6>`
+      line += `<br><h6>Score area: ${pitData.scoreType}</h6>`
+      line += `<br><h6>Climb: ${pitData.isClimb}</h6>`
+      line += `<br><h6>Reliability: ${pitData.reliability}0%</h6>`
       line += `<p>${pitData.notes}</p>`
       scoutingdiv.innerHTML = line + scoutingdiv.innerHTML
       break;

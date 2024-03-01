@@ -11,6 +11,9 @@
   body {
     padding-top: 96px;
   }
+  select, textarea {
+    color:#888888;
+  }
 </style>
 </head>
 
@@ -44,15 +47,59 @@
   <select id="teamlist" onchange="setTeam()">
     <option disabled selected value> -- select an option -- </option>
   </select>
+  <label for="driveType">Drive train type</label>
+  <select id="driveType" onchange="">
+    <option disabled selected value> -- select an option -- </option>
+    <option value="Swerve">Swerve</option>
+    <option value="Tank">Tank</option>
+    <option value="Other">Other (use notes)</option>
+  </select>
+  <label for="scoreType">Score area</label>
+  <select id="scoreType" onchange="">
+    <option disabled selected value> -- select an option -- </option>
+    <option value="Exc-Speaker">Exclusively Speaker</option>
+    <option value="Speaker,AMP?">Speaker, but maybe AMP?</option>
+    <option value="Both">Designed for both</option>
+    <option value="AMP,Speaker?">AMP, but maybe Speaker?</option>
+    <option value="Exc-AMP">Exclusively AMP</option>
+  </select>
+  <label for="isClimb">Climb</label>
+  <select id="isClimb" onchange="">
+    <option disabled selected value> -- select an option -- </option>
+    <option value="Yes">Yes, Can climb</option>
+    <option value="No">No, Cannot climb</option>
+  </select>
+  <label for="reliability">Reliability</label>
+  <select id="reliability" onchange="">
+    <option disabled selected value> -- select an option -- </option>
+    <option value="0">0%</option>
+    <option value="1">10%</option>
+    <option value="2">20%</option>
+    <option value="3">30%</option>
+    <option value="4">40%</option>
+    <option value="5">50%</option>
+    <option value="6">60%</option>
+    <option value="7">70%</option>
+    <option value="8">80%</option>
+    <option value="9">90%</option>
+    <option value="10">100%</option>
+  </select>
   <button id="save" onclick="saveData()">Save</button>
   <br>
-  <textarea id="notes" style="display: none; width: 100%; height: 500px;"></textarea>
+  <textarea id="notes" style="display: none; width: 100%; height: 500px;" placeholder="notes"></textarea>
 </div>
 
 <script>
 const teamlistsel = getel('teamlist')
+
+const driveType = getel('driveType')
+const scoreType = getel('scoreType')
+const isClimb = getel('isClimb')
+const reliability= getel('reliability')
 const notes = getel('notes')
+
 const username = getel('username')
+
 let selEvent = ''
 let selteam = ''
 
@@ -94,14 +141,32 @@ socket.on('eventFileContent', (dirname, filename, data)=>{
   teamlistsel.value = selteam
   if(data != ''){
     data = jsonpack.unpack(data)
+    driveType.value = data.driveType
+    scoreType.value = data.scoreType
+    isClimb.value = data.isClimb
+    reliability.value = data.reliability
     notes.value = data.notes
+  }else{
+    driveType.style.display = "none"
+    scoreType.style.display = "none"
+    isClimb.style.display = "none"
+    reliability.style.display = "none"
+    notes.style.display = "none"
   }
+  driveType.style.display = ""
+  scoreType.style.display = ""
+  isClimb.style.display = ""
+  reliability.style.display = ""
   notes.style.display = ""
 })
 
 function saveData(){
   data = jsonpack.pack({
     name: username.value,
+    driveType: driveType.value,
+    scoreType: scoreType.value,
+    isClimb: isClimb.value,
+    reliability: reliability.value,
     notes: notes.value
   })
   socket.emit('writeToFile', selEvent, `pitscout-${selteam}.jsonpack`, data)
