@@ -50,34 +50,22 @@
   <div id="scoutingDiv" style="display: none;">
     <h3 id="teamKey">Team: </h3>
     <h3 id="teamPosition">Position: </h3>
+    
+    <label for="autoNotes" class="left">Auto notes scored</label>
+    <label for="autoPerformance" class="right">Auto performance</label>
     <br>
-    <label for="robotCondition" class="left">Robot condition</label>
-    <label for="scoreArea" class="right">Score area</label>
-    <br>
-    <select id="robotCondition" class="half">
-      <option selected value="">Fully functional</option>
-      <option value="broken?">Somthing was broken (Maybe)?</option>
-      <option value="broken">Somthing was broken</option>
-      <option value="somework">Did not work during part of the match</option>
-      <option value="notwork">Did not work at all</option>
-    </select>
-    <select id="scoreArea" class="half">
-      <option value="2">Exclusively in speaker</option>
-      <option value="1">Mostly in speaker</option>
-      <option selected value="0">Both</option>
-      <option value="-1">Mostly in AMP</option>
-      <option value="-2">Exclusively in AMP</option>
-    </select>
-    <br>
-    <label for="autoPerformance" class="left">Auto performance</label>
-    <label for="teleopPerformance" class="right">Teleop performance</label>
-    <br>
+    <input type="number" class="half" id="autoNotes" value="0">
     <select id="autoPerformance" class="half">
       <option value="4">Many rings</option>
       <option value="2">One ring</option>
       <option value="1">Auto taxi</option>
       <option selected value="0">No auto (Joe Johnson)</option>
     </select>
+    <br>
+    <label for="teleopNotes" class="left">Teleop notes scored</label>
+    <label for="teleopPerformance" class="right">Teleop performance</label>
+    <br>
+    <input type="number" class="half" id="teleopNotes" value="0">
     <select id="teleopPerformance" class="half">
       <option value="2">Far above average</option>
       <option value="1">Above average</option>
@@ -87,16 +75,34 @@
     </select>
     <br>
     <label for="overallPerformance" class="left">Overall performance</label>
-    <select id="overallPerformance">
+    <label for="scoreArea" class="left">Score area</label>
+    <br>
+    <select id="overallPerformance" class="half">
       <option value="2">Far above average</option>
       <option value="1">Above average</option>
       <option selected value="0">Average</option>
       <option value="-1">Below average</option>
       <option value="-2">Far below average</option>
     </select>
+    <select id="scoreArea" class="half">
+      <option value="2">Exclusively in speaker</option>
+      <option value="1">Mostly in speaker</option>
+      <option selected value="0">Both</option>
+      <option value="-1">Mostly in AMP</option>
+      <option value="-2">Exclusively in AMP</option>
+    </select>
     <br>
-    <label for="endState">End State</label>
-    <select id="endState">
+    <label for="robotCondition" class="left">Robot condition</label>
+    <label for="endState" class="right">End State</label>
+    <br>
+    <select id="robotCondition" class="half">
+      <option selected value="">Fully functional</option>
+      <option value="broken?">Somthing was broken (Maybe)?</option>
+      <option value="broken">Somthing was broken</option>
+      <option value="somework">Did not work during part of the match</option>
+      <option value="notwork">Did not work at all</option>
+    </select>
+    <select id="endState" class="half">
       <option value="5">Hung on stage with 1+ robots</option>
       <option value="3">Hung on stage alone</option>
       <option selected value="0">None</option>
@@ -110,11 +116,16 @@
     <br>
     <textarea id="teamNotes" placeholder="Notes" style="width: 500px;height: 500px;float: left;"></textarea>
     <div style="display: inline;">
-      <p>Prompts:</p>
-      <p>How fast was the robot able to score?</p>
-      <p>Was the robot easily defended?</p>
-      <p>How did the human player do?</p>
-      <p>Did anything unusual happen?</p>
+      <p>
+      Make sure to write good notes, Ryan will read them!<br><br>
+      How fast was the robot able to score?<br>
+      Was the robot easily defended?<br>
+      Did this team do any defending?<br>
+      How did the human player do?<br>
+      Did they press coopretition?<br>
+      Did anything not work?<br>
+      Did anything unusual happen?<br>
+      </p>
     </div>
   </div>
 </div>
@@ -134,6 +145,8 @@ const endState = getel('endState')
 const blueScore = getel('blueScore')
 const redScore = getel('redScore')
 const teamNotes = getel('teamNotes')
+const autoNotes = getel('autoNotes')
+const teleopNotes = getel('teleopNotes')
 
 const username = getel('username')
 
@@ -196,6 +209,13 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
         scoreArea.value = matchData.scoreArea
         endState.value = matchData.endState
         teamNotes.value = matchData.notes
+        try{
+          autoNotes.value = matchData.autoNotes
+          teleopNotes.value = matchData.teleopNotes
+        }catch{
+          autoNotes.value = 0
+          teleopNotes.value = 0
+        }
       }else{
         scoreArea.value = 0
         robotCondition.value = ''
@@ -206,6 +226,8 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
         redScore.value = ''
         endState.value = 0
         teamNotes.value = ''
+        autoNotes.value = 0
+        teleopNotes.value = 0
       }
 
       scoutingDiv.style.display = ""
@@ -279,6 +301,8 @@ function saveData(){
     endState: Number(endState.value),
     blueScore: Number(blueScore.value),
     redScore: Number(redScore.value),
+    autoNotes: Number(autoNotes.value),
+    teleopNotes: Number(teleopNotes.value),
     notes: teamNotes.value
   })
   socket.emit('writeToFile', selEvent, `matchscout-${curMatch}-${curPosition}.jsonpack`, data)

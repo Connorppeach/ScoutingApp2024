@@ -124,6 +124,8 @@ socket.on('processedData', (data)=>{
 <h5>Votes: ${stats.overallPerformance} (#${getPlace('overallPerformance')})</h5>
 <h5>S-ness: ${stats.scoreArea}</h5>
 <h5>Stage: ${stats.endState} (#${getPlace('endState')})</h5>
+<h5>A-Notes: ${stats.autoNotes}</h5>
+<h5>T-Notes: ${stats.teleopNotes}</h5>
 <h5>OPR: ${stats.OPR} (#${getPlace('OPR')})</h5>
 <h5>DPR: ${stats.DPR} (#${getPlace('DPR')})</h5>
 <h5>CCWM: ${stats.CCWM}</h5>
@@ -235,6 +237,8 @@ socket.on('multipleFiles', (data)=>{
     line += `<br><h6>Win: ${scout.win}</h6>`
     line += `<br><h6>A-vote: ${getPerformanceStr(scout.autoPerformance)}</h6>`
     line += `<br><h6>T-vote: ${getPerformanceStr(scout.teleopPerformance)}</h6>`
+    line += `<br><h6>A-Notes: ${scout.autoNotes}</h6>`
+    line += `<br><h6>T-Notes: ${scout.teleopNotes}</h6>`
     line += `<br><h6>Vote: ${getPerformanceStr(scout.overallPerformance)}</h6>`
     line += `<br><h6>Condition: ${scout.robotCondition}</h6>`
     line += `<br><p>${scout.notes}</p>`

@@ -271,9 +271,16 @@ def getProcessedData(eventName):
             teamResults[team]['endState'] += int(scoutdata['endState'])
             makeNumber(teamResults[team], 'scoreArea')
             teamResults[team]['scoreArea'] += int(scoutdata['scoreArea'])
-
         except:
-            continue
+            pass
+
+        makeArray(teamResults[team], 'autoNotes')
+        makeArray(teamResults[team], 'teleopNotes')
+        
+        if 'autoNotes' in scoutdata:
+            teamResults[team]['autoNotes'].append(int(scoutdata['autoNotes']))
+        if 'teleopNotes' in scoutdata:
+            teamResults[team]['teleopNotes'].append(int(scoutdata['teleopNotes']))
 
 
     #print(tmpMatchData)
@@ -322,6 +329,22 @@ def getProcessedData(eventName):
     for teamOPR in oprData:
         key = teamOPR['key']
         teamResult = teamResults[key]
+        
+        makeNumber(teamOPR, 'autoNotes')
+        if len(teamResult['autoNotes']) == 0:
+            teamOPR['autoNotes'] == 0
+        else:
+            x = sum(teamResult['autoNotes'])/len(teamResult['autoNotes'])
+            teamOPR['autoNotes'] = round(x, 2)
+        
+        print(teamOPR['autoNotes'])
+            
+        makeNumber(teamOPR, 'teleopNotes')
+        if len(teamResult['teleopNotes']) == 0:
+            teamOPR['teleopNotes'] == 0
+        else:
+            x = sum(teamResult['teleopNotes'])/len(teamResult['teleopNotes'])
+            teamOPR['teleopNotes'] = round(x, 2)
 
         makeNumber(teamOPR, 'avgScore')
         if teamResult['scores'] == []:
