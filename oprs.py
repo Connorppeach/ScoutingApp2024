@@ -283,7 +283,6 @@ def getProcessedData(eventName):
             teamResults[team]['teleopNotes'].append(int(scoutdata['teleopNotes']))
 
 
-    #print(tmpMatchData)
     oprData = []
     for file in files:
         match = file.split('-')[1]
@@ -337,8 +336,6 @@ def getProcessedData(eventName):
             x = sum(teamResult['autoNotes'])/len(teamResult['autoNotes'])
             teamOPR['autoNotes'] = round(x, 2)
         
-        print(teamOPR['autoNotes'])
-            
         makeNumber(teamOPR, 'teleopNotes')
         if len(teamResult['teleopNotes']) == 0:
             teamOPR['teleopNotes'] == 0
