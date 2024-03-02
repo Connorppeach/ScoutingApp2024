@@ -235,39 +235,46 @@ def getProcessedData(eventName):
         alliance = file.split('-')[2]
 
         matchdata = matchlist[int(match.split('qm')[1])-1]
-        scoutdata = jsonpack.unpack(openFile(dataroot+eventName+'/'+file))
-        key = file.split('-')[1]
+        #print(dataroot+eventName+'/'+file)
+        try:
+            scoutdata = jsonpack.unpack(openFile(dataroot+eventName+'/'+file))
+ 
+            key = file.split('-')[1]
 
-        makeObject(tmpMatchData, key)
-        makeArray(tmpMatchData[key], 'blue')
-        makeArray(tmpMatchData[key], 'red')
-        makeArray(tmpMatchData[key], 'bluewins')
-        makeArray(tmpMatchData[key], 'blueScores')
-        makeArray(tmpMatchData[key], 'redScores')
+            makeObject(tmpMatchData, key)
+            makeArray(tmpMatchData[key], 'blue')
+            makeArray(tmpMatchData[key], 'red')
+            makeArray(tmpMatchData[key], 'bluewins')
+            makeArray(tmpMatchData[key], 'blueScores')
+            makeArray(tmpMatchData[key], 'redScores')
 
-        tmpMatchData[key]['blue'] = matchdata['blue']
-        tmpMatchData[key]['red'] = matchdata['red']
+            tmpMatchData[key]['blue'] = matchdata['blue']
+            tmpMatchData[key]['red'] = matchdata['red']
 
-        tmpMatchData[key]['blueScores'].append(scoutdata['blueScore'])
-        tmpMatchData[key]['redScores'].append(scoutdata['redScore'])
-        
-        if alliance == 'blue':
-            tmpMatchData[key]['bluewins'].append(scoutdata['win'])
-        else:
-            tmpMatchData[key]['bluewins'].append(not scoutdata['win'])
+            tmpMatchData[key]['blueScores'].append(scoutdata['blueScore'])
+            tmpMatchData[key]['redScores'].append(scoutdata['redScore'])
+            
+            if alliance == 'blue':
+                tmpMatchData[key]['bluewins'].append(scoutdata['win'])
+            else:
+                tmpMatchData[key]['bluewins'].append(not scoutdata['win'])
 
-        team = scoutdata['team']
-        makeObject(teamResults, team)
-        makeNumber(teamResults[team], 'autoPerformance')
-        teamResults[team]['autoPerformance'] += int(scoutdata['autoPerformance'])
-        makeNumber(teamResults[team], 'teleopPerformance')
-        teamResults[team]['teleopPerformance'] += int(scoutdata['teleopPerformance'])
-        makeNumber(teamResults[team], 'overallPerformance')
-        teamResults[team]['overallPerformance'] += int(scoutdata['overallPerformance'])
-        makeNumber(teamResults[team], 'endState')
-        teamResults[team]['endState'] += int(scoutdata['endState'])
-        makeNumber(teamResults[team], 'scoreArea')
-        teamResults[team]['scoreArea'] += int(scoutdata['scoreArea'])
+            team = scoutdata['team']
+            makeObject(teamResults, team)
+            makeNumber(teamResults[team], 'autoPerformance')
+            teamResults[team]['autoPerformance'] += int(scoutdata['autoPerformance'])
+            makeNumber(teamResults[team], 'teleopPerformance')
+            teamResults[team]['teleopPerformance'] += int(scoutdata['teleopPerformance'])
+            makeNumber(teamResults[team], 'overallPerformance')
+            teamResults[team]['overallPerformance'] += int(scoutdata['overallPerformance'])
+            makeNumber(teamResults[team], 'endState')
+            teamResults[team]['endState'] += int(scoutdata['endState'])
+            makeNumber(teamResults[team], 'scoreArea')
+            teamResults[team]['scoreArea'] += int(scoutdata['scoreArea'])
+
+        except:
+            continue
+
 
     #print(tmpMatchData)
     oprData = []
