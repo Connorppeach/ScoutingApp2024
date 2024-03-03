@@ -214,6 +214,40 @@ def avgMode(scoreList):
     maxCount = max(counts)
     maxs = [scores[i] for i, x in enumerate(counts) if x == maxCount]
     return round(sum(maxs)/len(maxs))
+        
+        
+def tryIncrement(obj1, obj2, name):
+    makeNumber(obj2, name)
+    if not name in obj1:
+        return
+    obj2[name] += int(obj1[name])
+
+def tryAppend(obj1, obj2, oldName, newName):
+    makeArray(obj2, name)
+    if not oldName in obj1:
+        return
+    obj2[newName].append(obj1[oldName])
+
+def trySetNumber(obj1, obj2, name):
+    makeNumber(obj2, name)
+    if name in obj1:
+        obj2[name] = obj1[name]
+    else:
+        obj2[name] = 0
+
+def tryAverage(obj1, obj2, name, multiplier=1, oldName=''):
+    makeNumber(obj2, name)
+    if oldName == '':
+        oldName = name
+    if not oldName in obj1:
+        obj2[name] = 0
+    # elif len(obj1[name]) == 0:
+    #     obj2[name] = 0
+    else:
+        
+        x = sum(obj1[oldName])/len(obj1[oldName])
+        # print(name + ": " + str(x))
+        obj2[name] = round(x*multiplier, 2)
 
 
 dataroot = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/")
@@ -236,43 +270,64 @@ def getProcessedData(eventName):
 
         matchdata = matchlist[int(match.split('qm')[1])-1]
         #print(dataroot+eventName+'/'+file)
+    
         try:
             scoutdata = jsonpack.unpack(openFile(dataroot+eventName+'/'+file))
- 
-            key = file.split('-')[1]
-
-            makeObject(tmpMatchData, key)
-            makeArray(tmpMatchData[key], 'blue')
-            makeArray(tmpMatchData[key], 'red')
-            makeArray(tmpMatchData[key], 'bluewins')
-            makeArray(tmpMatchData[key], 'blueScores')
-            makeArray(tmpMatchData[key], 'redScores')
-
-            tmpMatchData[key]['blue'] = matchdata['blue']
-            tmpMatchData[key]['red'] = matchdata['red']
-
-            tmpMatchData[key]['blueScores'].append(scoutdata['blueScore'])
-            tmpMatchData[key]['redScores'].append(scoutdata['redScore'])
-            
-            if alliance == 'blue':
-                tmpMatchData[key]['bluewins'].append(scoutdata['win'])
-            else:
-                tmpMatchData[key]['bluewins'].append(not scoutdata['win'])
-
-            team = scoutdata['team']
-            makeObject(teamResults, team)
-            makeNumber(teamResults[team], 'autoPerformance')
-            teamResults[team]['autoPerformance'] += int(scoutdata['autoPerformance'])
-            makeNumber(teamResults[team], 'teleopPerformance')
-            teamResults[team]['teleopPerformance'] += int(scoutdata['teleopPerformance'])
-            makeNumber(teamResults[team], 'overallPerformance')
-            teamResults[team]['overallPerformance'] += int(scoutdata['overallPerformance'])
-            makeNumber(teamResults[team], 'endState')
-            teamResults[team]['endState'] += int(scoutdata['endState'])
-            makeNumber(teamResults[team], 'scoreArea')
-            teamResults[team]['scoreArea'] += int(scoutdata['scoreArea'])
         except:
-            pass
+            continue
+        
+        key = file.split('-')[1]
+
+        makeObject(tmpMatchData, key)
+        makeArray(tmpMatchData[key], 'blue')
+        makeArray(tmpMatchData[key], 'red')
+        makeArray(tmpMatchData[key], 'bluewins')
+        makeArray(tmpMatchData[key], 'blueScores')
+        makeArray(tmpMatchData[key], 'redScores')
+        makeArray(tmpMatchData[key], 'wins')
+
+        if 'blueScore' in scoutdata:
+            tmpMatchData[key]['blueScores'].append(scoutdata['blueScore'])
+        if 'redScore' in scoutdata:
+            tmpMatchData[key]['redScores'].append(scoutdata['redScore'])
+        if 'redScore' in scoutdata and 'blueScore' in scoutdata:
+            tmpMatchData[key]['wins'].append(scoutdata['win'])
+
+        tmpMatchData[key]['blue'] = matchdata['blue']
+        tmpMatchData[key]['red'] = matchdata['red']
+        
+        if alliance == 'blue':
+            tmpMatchData[key]['bluewins'].append(scoutdata['win'])
+        else:
+            tmpMatchData[key]['bluewins'].append(not scoutdata['win'])
+            
+        team = scoutdata['team']
+        makeObject(teamResults, team)
+            
+        makeArray(teamResults[team], 'autoPerformance')
+        makeArray(teamResults[team], 'teleopPerformance')
+        makeArray(teamResults[team], 'overallPerformance')
+        makeArray(teamResults[team], 'endState')
+        makeArray(teamResults[team], 'scoreArea')
+        
+        try:
+            if 'autoPerformance' in scoutdata:
+                teamResults[team]['autoPerformance'].append(int(scoutdata['autoPerformance']))
+            if 'teleopPerformance' in scoutdata:
+                teamResults[team]['teleopPerformance'].append(int(scoutdata['teleopPerformance']))
+            if 'overallPerformance' in scoutdata:
+                teamResults[team]['overallPerformance'].append(int(scoutdata['overallPerformance']))
+            if 'endState' in scoutdata:
+                teamResults[team]['endState'].append(int(scoutdata['endState']))
+            if 'scoreArea' in scoutdata:
+                teamResults[team]['scoreArea'].append(int(scoutdata['scoreArea']))
+        except:pass
+        
+        # tryIncrement(teamResults[team], scoutdata, 'autoPerformance')
+        # tryIncrement(teamResults[team], scoutdata, 'teleopPerformance')
+        # tryIncrement(teamResults[team], scoutdata, 'overallPerformance')
+        # tryIncrement(teamResults[team], scoutdata, 'endState')
+        # tryIncrement(teamResults[team], scoutdata, 'scoreArea')
 
         makeArray(teamResults[team], 'autoNotes')
         makeArray(teamResults[team], 'teleopNotes')
@@ -314,6 +369,7 @@ def getProcessedData(eventName):
                 makeArray(teamResults[team], 'wins')
                 teamResults[team]['scores'].append(redscore)
                 teamResults[team]['wins'].append(not bluewin)
+            
 
             oprData.append({
                 'key': match,
@@ -322,72 +378,24 @@ def getProcessedData(eventName):
                 'bluescore': bluescore,
                 'redscore': redscore
             })
+    
+            
     oprData, pinvInaccuracy = calc(oprData)
 
-    
     for teamOPR in oprData:
         key = teamOPR['key']
         teamResult = teamResults[key]
         
-        makeNumber(teamOPR, 'autoNotes')
-        if len(teamResult['autoNotes']) == 0:
-            teamOPR['autoNotes'] == 0
-        else:
-            x = sum(teamResult['autoNotes'])/len(teamResult['autoNotes'])
-            teamOPR['autoNotes'] = round(x, 2)
+        tryAverage(teamResult, teamOPR, 'autoNotes')
+        tryAverage(teamResult, teamOPR, 'teleopNotes')
+        tryAverage(teamResult, teamOPR, 'avgScore', 1, 'scores')
+        tryAverage(teamResult, teamOPR, 'winPercent', 100, 'wins')
+
+        tryAverage(teamResult, teamOPR, 'autoPerformance')
+        tryAverage(teamResult, teamOPR, 'teleopPerformance')
+        tryAverage(teamResult, teamOPR, 'overallPerformance')
         
-        makeNumber(teamOPR, 'teleopNotes')
-        if len(teamResult['teleopNotes']) == 0:
-            teamOPR['teleopNotes'] == 0
-        else:
-            x = sum(teamResult['teleopNotes'])/len(teamResult['teleopNotes'])
-            teamOPR['teleopNotes'] = round(x, 2)
-
-        makeNumber(teamOPR, 'avgScore')
-        if teamResult['scores'] == []:
-            teamOPR['avgScore'] = 0
-        else:
-            x = sum(teamResult['scores'])/len(teamResult['scores'])
-            teamOPR['avgScore'] = round(x, 2)
-
-        makeNumber(teamOPR, 'winPercent')
-        if teamResult['wins'] == []:
-            teamOPR['winPercent'] = 0
-        else:
-            x = sum(teamResult['wins'])/len(teamResult['wins'])
-            teamOPR['winPercent'] = round(x*100, 2)
-
-
-
-        makeNumber(teamOPR, 'autoPerformance')
-        try:
-            teamOPR['autoPerformance'] = teamResult['autoPerformance']
-        except:
-            teamOPR['autoPerformance'] = 0
-
-        makeNumber(teamOPR, 'teleopPerformance')
-        try:
-            teamOPR['teleopPerformance'] = teamResult['teleopPerformance']
-        except:
-            teamOPR['teleopPerformance'] = 0
-
-        makeNumber(teamOPR, 'overallPerformance')
-        try:
-            teamOPR['overallPerformance'] = teamResult['overallPerformance']
-        except:
-            teamOPR['overallPerformance'] = 0
-
-        makeNumber(teamOPR, 'endState')
-        try:
-            teamOPR['endState'] = teamResult['endState']
-        except:
-            teamOPR['endState'] = 0
-
-        makeNumber(teamOPR, 'scoreArea')
-        try:
-            teamOPR['scoreArea'] = teamResult['scoreArea']
-        except:
-            teamOPR['scoreArea'] = 0
-
+        tryAverage(teamResult, teamOPR, 'endState')
+        tryAverage(teamResult, teamOPR, 'scoreArea')
 
     return oprData, pinvInaccuracy

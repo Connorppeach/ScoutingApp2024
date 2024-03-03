@@ -128,8 +128,8 @@ function sortTable(table, n) {
           shouldSwitch = false;
           x = rows[i].getElementsByTagName("TH")[n];
           y = rows[i + 1].getElementsByTagName("TH")[n];
-                  var cmpX=isNaN(parseInt(x.innerHTML))?x.innerHTML.toLowerCase():parseInt(x.innerHTML);
-                  var cmpY=isNaN(parseInt(y.innerHTML))?y.innerHTML.toLowerCase():parseInt(y.innerHTML);
+                  var cmpX=isNaN(parseInt(x.innerHTML))?x.innerHTML.toLowerCase():parseFloat(x.innerHTML);
+                  var cmpY=isNaN(parseInt(y.innerHTML))?y.innerHTML.toLowerCase():parseFloat(y.innerHTML);
   cmpX=(cmpX=='-')?0:cmpX;
   cmpY=(cmpY=='-')?0:cmpY;
           if (dir == "asc") {

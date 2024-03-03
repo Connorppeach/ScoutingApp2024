@@ -48,9 +48,8 @@ body {
   <a href="/data/selector">Selector</a>
 </div>
 
-<div class="container">
-  <table id='teamTable' style="display:none;float: left;"></table>
-</div>
+<table id='teamTable' style="display:none;float: left;"></table>
+
 
 <script>
 const teamTable = getel('teamTable')
@@ -75,8 +74,8 @@ socket.on('processedData', (data, pinvInaccuracy)=>{
   }
   teamTable.innerHTML += `<tr style='cursor:pointer;'>
 <th onclick='sortTable(teamTable, 0)'>key</th>
-<th onclick='sortTable(teamTable, 1)'>A-votes</th>
-<th onclick='sortTable(teamTable, 2)'>T-votes</th>
+<th onclick='sortTable(teamTable, 1)'>Auto</th>
+<th onclick='sortTable(teamTable, 2)'>Teleop</th>
 <th onclick='sortTable(teamTable, 3)'>Votes</th>
 <th onclick='sortTable(teamTable, 4)'>S-ness</th>
 <th onclick='sortTable(teamTable, 5)'>Stage</th>

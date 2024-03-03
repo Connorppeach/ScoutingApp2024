@@ -35,6 +35,14 @@ Python is better for statistics, and that's what we need to be in the scouting a
 - The 'fakescout.py' script is useful for generating data to test from TBA
 
 ## TODO
+
+- Clean up code
+- Add "sort" button in file send
+  - Make previously sent file indicators
+- Practice mode
+- Fix persistant scouting data issue
+- Add data version (maybe?)
+
 - ~~Write scouting / pit scouting frontend~~
 - ~~^ Names of the people who did the scouting~~
 - ~~Copy code from chief delphi to calculate best teams from scouting data~~
