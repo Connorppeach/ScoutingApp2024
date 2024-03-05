@@ -21,10 +21,13 @@ body {
 
   cursor: pointer;
 }
-.team:hover {
+.teamgreen {
   background-color: #059100;
 }
-.teamgreen {
+.tableSelect:hover, .team:hover {
+  background-color: rgba(5, 145, 0, 0.5);
+}
+.teamgreen:hover {
   background-color: #059100;
 }
 button {
@@ -32,9 +35,6 @@ button {
 }
 .tableSelect {
   cursor: pointer;
-}
-.tableSelect:hover {
-  background-color: #059100;
 }
 </style>
 </head>
@@ -77,7 +77,7 @@ const matchTable = getel('matchTable')
 const event = getel('events')
 
 let fileList = []
-let matchData = []
+let matchData = {}
 let teamList = []
 
 onOpen(function(){})
@@ -101,14 +101,15 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
   switch(filename.split('-')[0]) {
     case 'matches.jsonpack':
       matchData = jsonpack.unpack(data)
+      console.log(matchData)
       setMatchTable()
 
   }
 })
 
 function setMatchTable(){
-  if(matchData == []){return}
-  if(fileList == []){return}
+  if(matchData.alliances == undefined){return}
+  if(fileList.alliances == []){return}
   let line = ''
   line += "<tr>"
   line += "<th>key</th>"
@@ -120,12 +121,14 @@ function setMatchTable(){
   line += "<th>Blue 3</th>"
   line += "</tr>"
 
-  function getTableElem(match, alliance, num){
+  function getTableElem(index, alliance, num){
     th = '<th'
 
-    th += ` onclick='redirMatchScout("${alliance+'-'+num}","${match.key}")'`
+    match = matchData.alliances[index]
 
-    filename = `matchscout-${match.key}-${alliance}-${num}.jsonpack`
+    th += ` onclick='redirMatchScout("${alliance+'-'+num}","${index}")'`
+
+    filename = `matchscout-${matchData.key}_qm${index+1}-${alliance}-${num}.jsonpack`
     th += " class='tableSelect"
     if(fileList.includes(filename)){
       th += " green'>"
@@ -138,15 +141,16 @@ function setMatchTable(){
     return th + '</th>'
   }
 
-  for(i=0; i<matchData.length; i++){
+  for(i=0; i<matchData.alliances.length; i++){
+    match = matchData.alliances[i]
     line += "<tr>"
-    line += "<th>"+matchData[i].key+"</th>"
-    line += getTableElem(matchData[i], 'red', 1)
-    line += getTableElem(matchData[i], 'red', 2)
-    line += getTableElem(matchData[i], 'red', 3)
-    line += getTableElem(matchData[i], 'blue', 1)
-    line += getTableElem(matchData[i], 'blue', 2)
-    line += getTableElem(matchData[i], 'blue', 3)
+    line += `<th>qm${(i+1)}</th>`
+    line += getTableElem(i, 'red', 1)
+    line += getTableElem(i, 'red', 2)
+    line += getTableElem(i, 'red', 3)
+    line += getTableElem(i, 'blue', 1)
+    line += getTableElem(i, 'blue', 2)
+    line += getTableElem(i, 'blue', 3)
     line += "</tr>"
   }
   matchTable.innerHTML = line

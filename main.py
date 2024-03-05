@@ -61,26 +61,26 @@ def getTeams(event):
         return []
     if not os.path.exists(dataroot+event+"/matches.jsonpack"):
         return []
-    try:
-        teams = []
-        data = jsonpack.unpack(openFile(dataroot+event+"/matches.jsonpack"))
-        for match in data:
-            for redbot in match['red']:
-                bot = int(redbot[3:])
-                if not bot in teams:
-                    teams.append(bot)
-            for bluebot in match['blue']:
-                bot = int(bluebot[3:])
-                if not bot in teams:
-                    teams.append(bot)
-        teams = list(set(teams))
-        teams.sort()
-        result = []
-        for team in teams:
-            result.append('frc'+str(team))
-        return result
-    except:
-        return []
+    # try:
+    teams = []
+    data = jsonpack.unpack(openFile(dataroot+event+"/matches.jsonpack"))['alliances']
+    for match in data:
+        for redbot in match['red']:
+            bot = int(redbot)
+            if not bot in teams:
+                teams.append(bot)
+        for bluebot in match['blue']:
+            bot = int(bluebot)
+            if not bot in teams:
+                teams.append(bot)
+    teams = list(set(teams))
+    teams.sort()
+    result = []
+    for team in teams:
+        result.append(str(team))
+    return result
+    # except:
+    #     return []
 
 app = Flask(__name__,
             static_url_path=webroot, 

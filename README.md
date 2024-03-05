@@ -36,11 +36,17 @@ Python is better for statistics, and that's what we need to be in the scouting a
 
 ## TODO
 
-- Clean up code
+
+- ~~Clean up code~~
+- ~~Get rid of "frc" in team names~~
 - Add "sort" button in file send
+- Format team page better
+- Add an 'Event' Page, to view all the data about a single event
+- Make a tool to convert data to new format
   - Make previously sent file indicators
 - Practice mode
-- Fix persistant scouting data issue
+- make not use socket-io
+- ~~Fix persistant scouting data issue~~
 - Add data version (maybe?)
 
 - ~~Write scouting / pit scouting frontend~~
@@ -48,7 +54,6 @@ Python is better for statistics, and that's what we need to be in the scouting a
 - ~~Copy code from chief delphi to calculate best teams from scouting data~~
 - ~~Write data visualisation frontend~~
 - ~~^ show stats like OTP and win % first, then scouting notes,~~ then throw the rest of the data at the user (from TBA)
-- Add an 'Event' Page, to view all the data about a single event
 - Incorperate TBA in-depth data somehow into visualizations
 
 ## Also TODO

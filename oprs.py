@@ -21,9 +21,9 @@ def find_num_of_teams(json_file):
     for match in json_file:
         #teamcount += 1
         for x in range(0,3):
-            allteams.append(match["red"][x][3:])
+            allteams.append(match["red"][x])
         for y in range(0,3):
-            allteams.append(match["blue"][y][3:])
+            allteams.append(match["blue"][y])
     teams = list(set(allteams))
     teams.sort()
     return (len(teams))
@@ -42,9 +42,9 @@ def teams_least_to_greatest(matches):
     for match in matches:
         #teamcount += 1
         for x in range(0,3):
-            allteams.append(int(match["red"][x][3:]))
+            allteams.append(int(match["red"][x]))
         for y in range(0,3):
-            allteams.append(int(match["blue"][y][3:]))
+            allteams.append(int(match["blue"][y]))
     teams = list(set(allteams))
     teams.sort()
     return (teams)
@@ -59,14 +59,14 @@ def initmatrix(num_of_teams, num_of_alliances, json_file, teams, OPR_DPR):
     if (OPR_DPR == 'OPR'):
         for match in json_file:
             for x in range(0,3):			#x is to access the different teams within the red alliance in the specific match
-                z = int(match["red"][x][3:])
+                z = int(match["red"][x])
                 index = teams.index(z)
                 M_array[row_num][index] = 1
             s_array[row_num] = match["redscore"]
             row_num += 1
 
             for y in range(0,3):		#y is to access the different teams within the blue alliance in the specific match
-                r = int(match["blue"][y][3:])
+                r = int(match["blue"][y])
                 index = teams.index(r)
                 M_array[row_num][index] = 1
             s_array[row_num] = match["bluescore"]
@@ -75,14 +75,14 @@ def initmatrix(num_of_teams, num_of_alliances, json_file, teams, OPR_DPR):
     if (OPR_DPR == "DPR"):
         for match in json_file:
             for x in range(0,3):			#x is to access the different teams within the red alliance in the specific match
-                z = int(match["red"][x][3:])
+                z = int(match["red"][x])
                 index = teams.index(z)
                 M_array[row_num][index] = 1
             s_array[row_num] = match["bluescore"]
             row_num += 1
 
             for y in range(0,3):		#y is to access the different teams within the blue alliance in the specific match
-                r = int(match["blue"][y][3:])
+                r = int(match["blue"][y])
                 index = teams.index(r)
                 M_array[row_num][index] = 1
             s_array[row_num] = match["redscore"]
@@ -143,9 +143,9 @@ def calc(json):
         OPR = round(float(OPR_results[i]),2)
         DPR = round(float(DPR_results[i]),2)
         CCWM = round((OPR - DPR),2)
-        team = "frc" + str(teams[i])
+        team = teams[i]
         result.append({
-            'key': team,
+            'key': int(team),
             'OPR': OPR,
             'DPR': DPR,
             'CCWM': CCWM
@@ -200,6 +200,16 @@ def makeNumber(parent, key):
     except:
         parent[key] = 0
     return parent
+
+def addFRC(Str):
+    if type(Str) is int:
+        return "frc" + str(Str)
+    return Str
+
+def removeFRC(Str):
+    if 'frc' in Str:
+        return frc[:3]
+    return Str
 
 #Get the MODE of a list, but also avrage the results
 def avgMode(scoreList):
@@ -268,7 +278,7 @@ def getProcessedData(eventName):
         match = file.split('-')[1]
         alliance = file.split('-')[2]
 
-        matchdata = matchlist[int(match.split('qm')[1])-1]
+        matchdata = matchlist['alliances'][int(match.split('qm')[1])-1]
         #print(dataroot+eventName+'/'+file)
     
         try:
@@ -381,9 +391,11 @@ def getProcessedData(eventName):
     
             
     oprData, pinvInaccuracy = calc(oprData)
+    
+    # print(teamResults)
 
     for teamOPR in oprData:
-        key = teamOPR['key']
+        key = str(teamOPR['key'])
         teamResult = teamResults[key]
         
         tryAverage(teamResult, teamOPR, 'autoNotes')

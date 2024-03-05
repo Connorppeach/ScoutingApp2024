@@ -62,34 +62,7 @@ body {
   background-color: #059100;
 }
 
-.topnav #username {
-  float: right;
-  margin:0 !important;
-  color: var(--text-1);
-  background-color: var(--backround-2);
-  border: none;
-  text-align: center;
-  padding: 14px 8px;
-  text-decoration: none;
-  font-size: 17px;
-  width:10vw;
-}
-
-.topnav #events {
-  float: right;
-  color: var(--text-1);
-  background-color: var(--backround-2);
-  border: none;
-  text-align: center;
-  padding: 14px 8px;
-  text-decoration: none;
-  font-size: 17px;
-  width:10vw;
-  margin:0;
-  margin-right: 10px;
-}
-
-.topnav #position {
+.topnav #username, .topnav #events, .topnav #position {
   float: right;
   color: var(--text-1);
   background-color: var(--backround-2);

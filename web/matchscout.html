@@ -50,16 +50,18 @@
   <div id="scoutingDiv" style="display: none;">
     <h3 id="teamKey">Team: </h3>
     <h3 id="teamPosition">Position: </h3>
-    
+    <p>Remember, 'Average' means how a robot's performance compares to other teams you've seen. Not how the same team was doing in a previous match.<br>
+    Also, don't be hesitant to say bad things about a team. The data is probably more valuable than positive things.</p>
     <label for="autoNotes" class="left">Auto notes scored</label>
     <label for="autoPerformance" class="right">Auto performance</label>
     <br>
     <input type="number" class="half" id="autoNotes" value="0">
     <select id="autoPerformance" class="half">
-      <option value="4">Many rings</option>
-      <option value="2">One ring</option>
-      <option value="1">Auto taxi</option>
-      <option selected value="0">No auto (Joe Johnson)</option>
+      <option value="2">Far above average</option>
+      <option value="1">Above average</option>
+      <option selected value="0">Average</option>
+      <option value="-1">Below average</option>
+      <option value="-2">Far below average</option>
     </select>
     <br>
     <label for="teleopNotes" class="left">Teleop notes scored</label>
@@ -75,7 +77,7 @@
     </select>
     <br>
     <label for="overallPerformance" class="left">Overall performance</label>
-    <label for="scoreArea" class="left">Score area</label>
+    <label for="scoreArea" class="right">Score area</label>
     <br>
     <select id="overallPerformance" class="half">
       <option value="2">Far above average</option>
@@ -101,6 +103,7 @@
       <option value="broken">Somthing was broken</option>
       <option value="somework">Did not work during part of the match</option>
       <option value="notwork">Did not work at all</option>
+      <option value="gone">The robot was missing (Joe Johnson)</option>
     </select>
     <select id="endState" class="half">
       <option value="5">Hung on stage with 1+ robots</option>
@@ -150,9 +153,9 @@ const teleopNotes = getel('teleopNotes')
 
 const username = getel('username')
 
-let matches = []
+let matches = {}
 let curPosition = ''
-let curMatch = ''
+let curMatch = -1
 let selEvent = ''
 
 let matchIndex = -1
@@ -177,26 +180,30 @@ onMatchPosition(function(pos){
 })
 
 socket.on('curMatch', (match)=>{
-  curMatch = match
+  curMatch = Number(match)
   if(matchsel.children.length != 1){
     matchsel.value = curMatch
   }
 })
 
 socket.on('eventFileContent',(dirname, filename, data)=>{
+  // if(data == ""){return}
   console.log(data)
   switch(filename.split('-')[0]) {
     case 'matches.jsonpack':
       matches = jsonpack.unpack(data)
       matchsel.innerHTML = '<option disabled selected value> -- select an option -- </option>'
-      for(let i=0;i<matches.length;i++){
-        matchsel.innerHTML += `<option value='${matches[i].key}'>${matches[i].key}</option>`
+      key = matches.key
+      for(let i=0;i<matches.alliances.length;i++){
+        matchsel.innerHTML += `<option value='${i}'>${key}_qm${(i+1)}</option>`
       }
       matchsel.value = curMatch
       refreshData()
     case 'matchscout':
       teamKey.innerText = 'Team: '+teamName
       teamPosition.innerText = 'Position: '+curPosition
+
+      clearFields()
 
       if(data != ''){
         matchData = jsonpack.unpack(data)
@@ -216,18 +223,6 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
           autoNotes.value = 0
           teleopNotes.value = 0
         }
-      }else{
-        scoreArea.value = 0
-        robotCondition.value = ''
-        autoPerformance.value = 0
-        teleopPerformance.value = 0
-        overallPerformance.value = 0
-        blueScore.value = ''
-        redScore.value = ''
-        endState.value = 0
-        teamNotes.value = ''
-        autoNotes.value = 0
-        teleopNotes.value = 0
       }
 
       scoutingDiv.style.display = ""
@@ -245,44 +240,54 @@ function getWinningAlliance(){
 }
 
 function setMatch(){
-  curMatch = matchsel.value
+  curMatch = Number(matchsel.value)
   socket.emit('setCurMatch', curMatch)
   refreshData()
 }
 
 function findMatchIndex(){
-  for(let i=0;i<matches.length;i++){
-    if(matches[i].key==curMatch){return i}
-  }
+  
 }
 
 function nextMatch(){
-  if(matches == []){return}
-  index = findMatchIndex()
-  if(index >= matches.length-1){return}
-  matchsel.value = matches[index+1].key
+  if(matches.alliances == undefined){return}
+  if(curMatch >= matches.length-1){return}
+  matchsel.value = curMatch+1
   setMatch()
 }
 
 function prevMatch(){
-  if(matches == []){return}
-  index = findMatchIndex()
-  if(index <= 0){return}
-  matchsel.value = matches[index-1].key
+  if(matches.alliances == undefined){return}
+  if(curMatch <= 0){return}
+  matchsel.value = curMatch-1
   setMatch()
 }
 
 function refreshData(){
   if(curPosition == ''){return}
-  if(curMatch == ''){return}
-  if(matches == []){return}
-  matchIndex = findMatchIndex()
+  if(curMatch == -1){return}
+  if(matches.alliances == undefined){return}
   alliance = curPosition.split('-')[0]
   position = curPosition.split('-')[1]
-  teamName = matches[matchIndex][alliance][position-1]
+  teamName = matches.alliances[curMatch][alliance][position-1]
 
-  socket.emit('readFromFile', selEvent, `matchscout-${curMatch}-${curPosition}.jsonpack`)
+  socket.emit('readFromFile', selEvent, `matchscout-${matches.key}_qm${(curMatch+1)}-${curPosition}.jsonpack`)
   scoutingDiv.style.display = "none"
+  clearFields()
+}
+
+function clearFields(){
+  scoreArea.value = 0
+  robotCondition.value = ''
+  autoPerformance.value = 0
+  teleopPerformance.value = 0
+  overallPerformance.value = 0
+  blueScore.value = ''
+  redScore.value = ''
+  endState.value = 0
+  teamNotes.value = ''
+  autoNotes.value = 0
+  teleopNotes.value = 0
 }
 
 function saveData(){
@@ -305,7 +310,7 @@ function saveData(){
     teleopNotes: Number(teleopNotes.value),
     notes: teamNotes.value
   })
-  socket.emit('writeToFile', selEvent, `matchscout-${curMatch}-${curPosition}.jsonpack`, data)
+  socket.emit('writeToFile', selEvent, `matchscout-${matches.key}_qm${(curMatch+1)}-${curPosition}.jsonpack`, data)
   alert('Saved!')
 }
 

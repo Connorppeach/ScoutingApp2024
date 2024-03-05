@@ -83,13 +83,13 @@ onUsername(function(){})
 onEventList(function(){})
 onMatchPosition(function(){})
 
-let alliances = []
+let event = {}
 let matchdata
 let year
 let eventkey
 
 function sendMatchesToServer(){
-  socket.emit("writeToFile", eventkey, 'matches.jsonpack', jsonpack.pack(alliances))
+  socket.emit("writeToFile", eventkey, 'matches.jsonpack', jsonpack.pack(event))
   alert("Saved!")
 }
 
@@ -134,6 +134,22 @@ function getEventsByYear(){
   })
 }
 
+function sliceArray(arr, n){
+  newArr = []
+  for(let i=0;i<arr.length;i++){
+    newArr.push(arr[i].slice(n))
+  }
+  return newArr
+}
+
+function arr2Number(arr){
+  newArr = []
+  for(let i=0;i<arr.length;i++){
+    newArr.push(Number(arr[i]))
+  }
+  return newArr
+}
+
 function getMatchesByEvent(){
   getTBA("/event/"+eventkey+"/matches", function(data){
     matchdata = data
@@ -148,29 +164,32 @@ function getMatchesByEvent(){
     line += "<th>Blue 3</th>"
     line += "</th>"
 
-    alliances = []
+    event = {
+      key: eventkey,
+      alliances: []
+    }
 
     for(i=0; i<data.length; i++){
       if(data[i].comp_level != "qm"){continue}
 
-      alliances[data[i].key.split('qm')[self.length+1]-1] = {
-        key: data[i].key,
-        red: data[i].alliances.red.team_keys,
-        blue: data[i].alliances.blue.team_keys
+      event.alliances[data[i].key.split('qm')[self.length+1]-1] = {
+        red: sliceArray(data[i].alliances.red.team_keys, 3),
+        blue: sliceArray(data[i].alliances.blue.team_keys, 3)
       }
     }
 
-    console.log(alliances)
+    console.log(event)
+    console.log(jsonpack.pack(event))
 
-    for(i=0; i<alliances.length; i++){
+    for(i=0; i<event.alliances.length; i++){
       line += "<tr>"
-      line += "<th>"+alliances[i].key+"</th>"
-      line += "<th class='red'> "+alliances[i].red[0]+" </th>"
-      line += "<th class='red'> "+alliances[i].red[1]+" </th>"
-      line += "<th class='red'> "+alliances[i].red[2]+" </th>"
-      line += "<th class='blue'> "+alliances[i].blue[0]+" </th>"
-      line += "<th class='blue'> "+alliances[i].blue[1]+" </th>"
-      line += "<th class='blue'> "+alliances[i].blue[2]+" </th>"
+      line += "<th>qm"+(i+1)+"</th>"
+      line += "<th class='red'> "+event.alliances[i].red[0]+" </th>"
+      line += "<th class='red'> "+event.alliances[i].red[1]+" </th>"
+      line += "<th class='red'> "+event.alliances[i].red[2]+" </th>"
+      line += "<th class='blue'> "+event.alliances[i].blue[0]+" </th>"
+      line += "<th class='blue'> "+event.alliances[i].blue[1]+" </th>"
+      line += "<th class='blue'> "+event.alliances[i].blue[2]+" </th>"
       line += "</th>"
     }
     table.className = ''

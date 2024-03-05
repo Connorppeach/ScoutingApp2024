@@ -116,7 +116,7 @@ function onMatchPosition(func){
   })
 }
 
-function sortTable(table, n) {
+function sortTable(table, n, strFunc=(x)=>{return x}) {
   var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
   
   switching = true;
@@ -128,8 +128,18 @@ function sortTable(table, n) {
           shouldSwitch = false;
           x = rows[i].getElementsByTagName("TH")[n];
           y = rows[i + 1].getElementsByTagName("TH")[n];
-                  var cmpX=isNaN(parseInt(x.innerHTML))?x.innerHTML.toLowerCase():parseFloat(x.innerHTML);
-                  var cmpY=isNaN(parseInt(y.innerHTML))?y.innerHTML.toLowerCase():parseFloat(y.innerHTML);
+          // if(regularSize == 0){
+          //   offsetX = 0
+          //   offsetY = 0
+          // }else{
+          //   offsetX = x.innerHTML.length-regularSize
+          //   offsetY = y.innerHTML.length-regularSize
+          // }
+          xStr = strFunc(x.innerHTML)
+          yStr = strFunc(y.innerHTML)
+          //.substring(left, y.innerHTML.length - right + offsetY)
+          let cmpX=isNaN(parseFloat(xStr))?x.innerHTML.toLowerCase():parseFloat(xStr)
+          let cmpY=isNaN(parseFloat(yStr))?y.innerHTML.toLowerCase():parseFloat(yStr)
   cmpX=(cmpX=='-')?0:cmpX;
   cmpY=(cmpY=='-')?0:cmpY;
           if (dir == "asc") {

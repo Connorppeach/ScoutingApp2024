@@ -66,6 +66,8 @@ onEventList(function(){
 })
 onMatchPosition(function(){})
 
+function frcNumber(str){}
+
 socket.on('processedData', (data, pinvInaccuracy)=>{
   console.log(data)
   data = jsonpack.unpack(data)

@@ -147,6 +147,11 @@ socket.on('eventFileContent', (dirname, filename, data)=>{
     reliability.value = data.reliability
     notes.value = data.notes
   }else{
+    driveType.value = ""
+    scoreType.value = ""
+    isClimb.value = ""
+    reliability.value = ""
+    notes.value = ""
     driveType.style.display = "none"
     scoreType.style.display = "none"
     isClimb.style.display = "none"

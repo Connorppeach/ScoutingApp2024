@@ -150,17 +150,17 @@ socket.on('eventFileContent', (foldername, filename, data)=>{
 
       function inMatch(i){
         for(a=0;a<3;a++){
-          if(matchData[i].blue[a] == team){return true}
-          if(matchData[i].red[a] == team){return true}
+          if(String(matchData.alliances[i].blue[a]) == String(team)){return true}
+          if(String(matchData.alliances[i].red[a]) == String(team)){return true}
         }
         return false
       }
 
       function getElem(match, i, alliance, a){
         tmpTeam = match[i][alliance][a]
-        if(tmpTeam == team){
+        if(String(tmpTeam) == String(team)){
           matchFileList.push(
-            `matchscout-${matchData[i].key}-${alliance}-${a+1}.jsonpack`
+            `matchscout-${matchData.key}_qm${(i+1)}-${alliance}-${a+1}.jsonpack`
           )
           return `<th class='tableHighlight'>${tmpTeam}</th>`
         }else{
@@ -168,13 +168,13 @@ socket.on('eventFileContent', (foldername, filename, data)=>{
         }
       }
 
-      for(i=0;i<matchData.length;i++){
+      for(i=0;i<matchData.alliances.length;i++){
         if(!inMatch(i)){continue}
-        line = `<tr><th>${matchData[i].key}</th>`
+        line = `<tr><th>qm${(i+1)}</th>`
         for(a=0;a<3;a++){
-          line += getElem(matchData, i, 'red', a)}
+          line += getElem(matchData.alliances, i, 'red', a)}
         for(a=0;a<3;a++){
-          line += getElem(matchData, i, 'blue', a)}
+          line += getElem(matchData.alliances, i, 'blue', a)}
         matchTable.innerHTML += line +'</tr>'
       }
       matchTable.style.display = ''
