@@ -39,7 +39,7 @@ Python is better for statistics, and that's what we need to be in the scouting a
 
 - ~~Clean up code~~
 - ~~Get rid of "frc" in team names~~
-- Add "sort" button in file send
+- ~~Add "sort" button in file send~~
 - Format team page better
 - Add an 'Event' Page, to view all the data about a single event
 - Make a tool to convert data to new format

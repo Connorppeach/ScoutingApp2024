@@ -41,10 +41,11 @@
   </select>
   <p id="indicator">Getting Matches...</p>
   <button id="loadQrbutton" style="display:none;" onclick="getDataQrcode()">Send via qr codes</button><br>
-  <input placeholder="ws://[Scouting IP]:4388" id="WifiAddress" style="display:none;" ></input>
-  <button id="loadWifibutton" style="display:none;" onclick="sendWifi()">Send via wifi</button>
-  <table id='table' style="display:none;"></table>
-  <iframe id='iframe' style="display:none;"></iframe>
+  <button class="half" id="loadWifibutton" style="display: none;" onclick="sendWifi()">Send via wifi</button>
+  <input class="half" placeholder="ws://[Scouting IP]:4388" id="WifiAddress" style="display: none;" ></input><br>
+  <input id="searchBox" placeholder="Search..." style="display: none;" onkeyup="search()"><br>
+  <table id='table' style="display: none;"></table>
+  <iframe id='iframe' style="display: none;"></iframe>
 </div>
 
 <script>
@@ -53,6 +54,7 @@
   const loadQrbutton = getel('loadQrbutton')
   const WifiAddress = getel('WifiAddress')
   const loadWifiButton = getel('loadWifibutton')
+  const searchBox = getel('searchBox')
   const iframe = getel('iframe')
   const indicator = getel('indicator')
 
@@ -94,6 +96,7 @@
     loadWifiButton.style.display = ""
     WifiAddress.style.display = ""
     indicator.innerText = ""
+    searchBox.style.display = ""
   })
 
   function listFileOfMatch(){
@@ -130,6 +133,7 @@
         table.style.display = "none"
         loadQrbutton.style.display = "none"
         loadWifiButton.style.display = "none"
+        searchBox.style.display = "none"
         iframe.style.display = ""
         iframe.src = "/qrgen"
         iframe.onload = function() {
@@ -144,9 +148,6 @@
         }
       }
     })
-    // indicator.style.display = 'none'
-    // loadWifiButton.style.display = "none"
-    // WifiAddress.style.display = "none"
   }
 
   function selectAll(){
@@ -158,6 +159,61 @@
 
   async function sendWifi(){
     socket.emit('sendViaWifi', WifiAddress.value, matchdropdown.value, filenames)
+  }
+
+  function search(){
+    const split = searchBox.value.split(',')
+
+    // Parse number input
+    let numberArr = []
+    for(let i=0;i<split.length;i++){
+      if(!isNaN(Number(split[i]))){
+        if(Number(split[i]) == 0){continue}
+        numberArr.push(Number(split[i]))
+      }else{
+        const split2 = split[i].split('-')
+        if(split2.length != 2){continue}
+        if(isNaN(Number(split2[0]))){continue}
+        if(isNaN(Number(split2[1]))){continue}
+        const n1 = Number(split2[0])
+        const n2 = Number(split2[1])
+        if(n1 >= n2){continue}
+        for(let a=n1;a<=n2;a++){
+          numberArr.push(a)
+        }
+      }
+    }
+
+    // Clear file list
+    if(numberArr.length > 0){
+      filenames = []
+    }
+    
+    // Show only files that are in numberArr
+    const rows = table.children[0].children
+    for(let i=1;i<rows.length;i++){
+      const data = rows[i].children[1].innerText
+      
+      rows[i].children[0].children[0].checked = false
+      rows[i].style.display = 'none'
+
+      if(data.split('-')[0] != "matchscout"){continue}
+      const n = Number(data.split('-')[1].split('qm')[1])
+      if(numberArr.includes(n)){
+        console.log(n)
+
+        rows[i].children[0].children[0].checked = true
+        rows[i].style.display = ''
+        filenames.push(data)
+      }
+    }
+
+    // If number array is blank, show all options
+    if(numberArr.length == 0){
+      for(let i=1;i<rows.length;i++){
+        rows[i].style.display = ''
+      }
+    }
   }
   
 </script>
