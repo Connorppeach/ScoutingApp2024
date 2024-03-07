@@ -296,6 +296,11 @@ def getProcessedData(eventName):
         makeArray(tmpMatchData[key], 'redScores')
         makeArray(tmpMatchData[key], 'wins')
 
+        try:
+            if scoutdata['robotCondition'] == "gone":
+                continue
+        except:continue
+
         if 'blueScore' in scoutdata:
             tmpMatchData[key]['blueScores'].append(scoutdata['blueScore'])
         if 'redScore' in scoutdata:
@@ -313,7 +318,7 @@ def getProcessedData(eventName):
             
         team = scoutdata['team']
         makeObject(teamResults, team)
-            
+        
         makeArray(teamResults[team], 'autoPerformance')
         makeArray(teamResults[team], 'teleopPerformance')
         makeArray(teamResults[team], 'overallPerformance')
