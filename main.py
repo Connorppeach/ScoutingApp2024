@@ -101,6 +101,12 @@ def static_file(file):
 def frcTeam(team):
     return app.send_static_file("team.html")
 
+@app.route('/data/match/<path:match>')
+def match(match):
+    return app.send_static_file("match.html")
+
+
+
 
 @app.route('/favicon.ico')
 def favicon():
@@ -111,9 +117,14 @@ def favicon():
 def index():
     return app.send_static_file("index.html")
 
-@app.route('/data/leaderboard')
-def leaderboard():
-    return app.send_static_file("leaderboard.html")
+@app.route('/data/teams')
+def teams():
+    return app.send_static_file("teams.html")
+
+@app.route('/data/matches')
+def matches():
+    return app.send_static_file("matches.html")
+
 
 @app.route('/data/predictor')
 def predictor():

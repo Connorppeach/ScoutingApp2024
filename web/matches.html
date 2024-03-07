@@ -61,18 +61,16 @@ button {
   </select>
 </div>
 <div class="topnav" style="top:48px;">
-  <a class="active" href="/">Dashboard</a>
+  <a href="/">Dashboard</a>
   <a href="/data/teams">Teams</a>
-  <a href="/data/matches">Matches</a>
+  <a class="active" href="/data/matches">Matches</a>
   <a href="/data/predictor">Predictor</a>
   <a href="/data/selector">Selector</a>
 </div>
 
 <div class="container">
-  <div id="teams"></div>
   <table id='matchTable' style="display:none;float: left;"></table>
 </div>
-
 <script>
 const matchTable = getel('matchTable')
 const event = getel('events')
@@ -84,17 +82,9 @@ let teamList = []
 onOpen(function(){})
 onUsername(function(){})
 onEventList(function(){
-  socket.emit("getFilesInEvent", event.value)
   socket.emit("readFromFile", event.value, 'matches.jsonpack')
-  socket.emit("getTeams", event.value)
 })
 onMatchPosition(function(){})
-
-socket.on('eventFileList', (data)=>{
-  fileList = data.split('•')
-  setTeamList()
-  setMatchTable()
-})
 
 socket.on('eventFileContent',(dirname, filename, data)=>{
   console.log(data)
@@ -110,7 +100,6 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
 
 function setMatchTable(){
   if(matchData.alliances == undefined){return}
-  if(fileList.alliances == []){return}
   let line = ''
   line += "<tr>"
   line += "<th>key</th>"
@@ -123,28 +112,14 @@ function setMatchTable(){
   line += "</tr>"
 
   function getTableElem(index, alliance, num){
-    th = '<th'
-
     match = matchData.alliances[index]
-
-    th += ` onclick='redirMatchScout("${alliance+'-'+num}","${index}")'`
-
-    filename = `matchscout-${matchData.key}_qm${index+1}-${alliance}-${num}.jsonpack`
-    th += " class='tableSelect"
-    if(fileList.includes(filename)){
-      th += " green'>"
-    }else{
-      th += "'>"
-    }
-
-    th += match[alliance][num-1]
-
-    return th + '</th>'
+    tr = '<th>'
+    tr += match[alliance][num-1]
+    return tr + '</th>'
   }
-
   for(i=0; i<matchData.alliances.length; i++){
     match = matchData.alliances[i]
-    line += "<tr>"
+    line += `<tr class="tableSelect" onclick="redir('/data/match/${(i+1)}')">`
     line += `<th>qm${(i+1)}</th>`
     line += getTableElem(i, 'red', 1)
     line += getTableElem(i, 'red', 2)
@@ -158,48 +133,8 @@ function setMatchTable(){
   matchTable.style.display = ""
 }
 
-socket.on('teamList', (data)=>{
-  teamList = data.split('•')
-  setTeamList()
-})
-
-function redirMatchScout(position, match){
-  getel('position').value = position
-  setMatchPosition(position)
-  setCurMatch(match)
-  setTimeout(function() {
-    window.location.pathname = `/scout/match`
-  }, 500);
-}
-
-function redirPitScout(team){
-  socket.emit('setCurPitTeam', team)
-  setTimeout(function() {
-    window.location.pathname = `/scout/pit`
-  }, 500);
-}
-
-function setTeamList(){
-  if(fileList.length == 0){return}
-  if(teamList.length == 0){return}
-  if(getel('teams').innerHTML != []){return}
-
-  for(i=0;i<teamList.length;i++){
-    team = '<div'
-
-    team += ` onclick='redirPitScout("${teamList[i]}")'`
-
-    filename = `pitscout-${teamList[i]}.jsonpack`
-    if(fileList.includes(filename)){
-      team += " class='teamgreen'>"
-    }else{
-      team += " class='team'>"
-    }
-
-    team += teamList[i]
-
-    getel('teams').innerHTML += team + '</div>'
-  }
+function redir(path){
+  window.location.pathname = path
 }
 
 </script>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
+<link rel="stylesheet" type="text/css" href="/src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
+<script type="text/javascript" src="/src/socket.io.js"></script>
+<script type="text/javascript" src="/src/utils.js"></script>
+<script src="/src/jsonpack.js"></script>
+<style>
+body {
+  padding-top: 96px;
+}
+.tableHighlight {
+  background-color: var(--text-1);
+  color: var(--text-2);
+}
+#stats {
+  float: left;
+  display: block;
+}
+#stats h6 {
+  display: block;
+}
+#scouting {
+  float: left;
+  display: block;
+  width: 100%;
+}
+.tableSelect {
+  cursor: pointer;
+}
+.tableSelect:hover, .team:hover {
+  background-color: rgba(5, 145, 0, 0.5);
+}
+#scoutbox {
+  border: 1px solid var(--text-1);
+  padding: 5px;
+  color:var(--text-1);
+  width: fit-content;
+  float: left;
+  margin: 2px;
+  width: 24%;
+  word-wrap:anywhere;
+  min-width: 300px;
+}
+h6, h4, h3, h2 {
+  display: inline;
+}
+</style>
+</head>
+
+<body>
+<div class="topnav">
+  <a class="active" href="/data">Data</a>
+  <a href="/scout/match">Scouting</a>
+  <a href="/fileupload">Send</a>
+  <a href="/qrscan">Scan</a>
+  <a href="/tba">TBA</a>
+  <input id="username">
+  <select id="events" onchange="location.reload()">
+    <option disabled selected value>select</option>
+  </select>
+  <select id="position">
+    <option disabled selected value>select</option>
+    <option value="red-1">Red-1</option>
+    <option value="red-2">Red-2</option>
+    <option value="red-3">Red-3</option>
+    <option value="blue-1">Blue-1</option>
+    <option value="blue-2">Blue-2</option>
+    <option value="blue-3">Blue-3</option>
+  </select>
+</div>
+<div class="topnav" style="top:48px;">
+  <a href="/">Dashboard</a>
+  <a href="/data/teams">Teams</a>
+  <a href="/data/matches">Matches</a>
+  <a href="/data/predictor">Predictor</a>
+  <a href="/data/selector">Selector</a>
+  <a class='active' href="/data/" id='matchNavbarButton'></a>
+</div>
+<div class="container">
+  <table id='matchTable' style="float: left;"></table>
+  <div id="dataDiv"></div>
+  <br>
+</div>
+
+<table id='teamTable' style="float: left;"></table>
+<div class="container">
+  
+</div>
+<script>
+
+const matchTable = getel('matchTable')
+const teamTable = getel('teamTable')
+const event = getel('events')
+const dataDiv = getel('dataDiv')
+const statsdiv = getel('stats')
+const scoutingdiv = getel('scouting')
+
+const matchnum = Number(window.location.pathname.split('/')[3])
+
+getel('matchNavbarButton').href = "/data/team/"+matchnum
+getel('matchNavbarButton').innerText = ("qm" + matchnum)
+
+dataDiv.innerHTML += `<h2>qm${matchnum}</h2><br>`
+
+let matchData = []
+let matchFileList = []
+
+onOpen(function(){})
+onUsername(function(){})
+onEventList(function(){
+  selEvent = getel('events').value
+  if(selEvent != ""){
+    socket.emit('readFromFile', event.value, 'matches.jsonpack')
+    socket.emit("getProcessedData", event.value)
+    // socket.emit('readFromFile', event.value, `pitscout-${team}.jsonpack`)
+  }
+})
+onMatchPosition(function(){})
+
+socket.on('eventFileContent',(dirname, filename, data)=>{
+  console.log(data)
+  if(data == ''){return}
+  switch(filename.split('-')[0]) {
+    case 'matches.jsonpack':
+      matchData = jsonpack.unpack(data)
+      console.log(matchData)
+      setMatchTable()
+      dataDiv.innerHTML += `<a href="https://www.thebluealliance.com/match/${matchData.key}_qm${matchnum}">View on TheBlueAlliance</a>`
+  }
+})
+
+socket.on('processedData', (data, pinvInaccuracy)=>{
+  console.log(data)
+  data = jsonpack.unpack(data)
+  if(pinvInaccuracy){
+    alert('Singular matrix!\n Results may not be fully accurate!')
+  }
+  teamTable.innerHTML += `<tr style='cursor:pointer;'>
+<th onclick='sortTable(teamTable, 0)'>key</th>
+<th onclick='sortTable(teamTable, 1)'>Auto</th>
+<th onclick='sortTable(teamTable, 2)'>Teleop</th>
+<th onclick='sortTable(teamTable, 3)'>Votes</th>
+<th onclick='sortTable(teamTable, 4)'>S-ness</th>
+<th onclick='sortTable(teamTable, 5)'>Stage</th>
+<th onclick='sortTable(teamTable, 6)'>A-Notes</th>
+<th onclick='sortTable(teamTable, 7)'>T-Notes</th>
+<th onclick='sortTable(teamTable, 8)'>OPR</th>
+<th onclick='sortTable(teamTable, 9)'>DPR</th>
+<th onclick='sortTable(teamTable, 10)'>CCWM</th>
+<th onclick='sortTable(teamTable, 11)'>Score</th>
+<th onclick='sortTable(teamTable, 12)'>Win %</th>
+</tr>`
+  let teams = matchData.alliances[matchnum-1]
+
+  for(i=0;i<data.length;i++){
+    if(!teams.blue.includes(String(data[i].key)) && !teams.red.includes(String(data[i].key))){continue}
+    teamTable.innerHTML += `<tr class='tableSelect' onclick='redir("/data/team/${data[i].key}")'>
+<th>${data[i].key}</th>
+<th>${data[i].autoPerformance}</th>
+<th>${data[i].teleopPerformance}</th>
+<th>${data[i].overallPerformance}</th>
+<th>${data[i].scoreArea}</th>
+<th>${data[i].endState}</th>
+<th>${data[i].autoNotes}</th>
+<th>${data[i].teleopNotes}</th>
+<th>${data[i].OPR}</th>
+<th>${data[i].DPR}</th>
+<th>${data[i].CCWM}</th>
+<th>${data[i].avgScore}</th>
+<th>${data[i].winPercent}%</th>
+</tr>`
+  }
+  teamTable.style.display = ''
+})
+
+function setMatchTable(){
+  if(matchData.alliances == undefined){return}
+  let line = ''
+  line += "<tr>"
+  line += "<th>key</th>"
+  line += "<th>Red 1</th>"
+  line += "<th>Red 2</th>"
+  line += "<th>Red 3</th>"
+  line += "<th>Blue 1</th>"
+  line += "<th>Blue 2</th>"
+  line += "<th>Blue 3</th>"
+  line += "</tr>"
+
+  function getTableElem(index, alliance, num){
+    match = matchData.alliances[index]
+    tr = `<th class="tableSelect" onclick="redir('/data/team/${match[alliance][num-1]}')">`
+    tr += match[alliance][num-1]
+    return tr + '</th>'
+  }
+
+  i = matchnum-1
+  match = matchData.alliances[i]
+  line += `<tr>`
+  line += `<th>qm${(i+1)}</th>`
+  line += getTableElem(i, 'red', 1)
+  line += getTableElem(i, 'red', 2)
+  line += getTableElem(i, 'red', 3)
+  line += getTableElem(i, 'blue', 1)
+  line += getTableElem(i, 'blue', 2)
+  line += getTableElem(i, 'blue', 3)
+  line += "</tr>"
+
+  matchTable.innerHTML = line
+  matchTable.style.display = ""
+}
+
+function redir(str){
+  window.location.pathname = str
+}
+
+</script>
+    
+</body>
+</html>

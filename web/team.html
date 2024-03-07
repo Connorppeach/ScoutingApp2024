@@ -20,9 +20,9 @@ body {
   display: block;
 }
 #stats h6 {
-  display: block;
+  display: inline;
 }
-#scouting {
+#scouting, #statsdiv  {
   float: left;
   display: block;
   width: 100%;
@@ -40,6 +40,12 @@ body {
 }
 h6, h4, h3, h2 {
   display: inline;
+}
+.tableSelect {
+  cursor: pointer;
+}
+.tableSelect:hover, .team:hover {
+  background-color: rgba(5, 145, 0, 0.5);
 }
 </style>
 </head>
@@ -67,7 +73,8 @@ h6, h4, h3, h2 {
 </div>
 <div class="topnav" style="top:48px;">
   <a href="/">Dashboard</a>
-  <a href="/data/leaderboard">Leaderboard</a>
+  <a href="/data/teams">Teams</a>
+  <a href="/data/matches">Matches</a>
   <a href="/data/predictor">Predictor</a>
   <a href="/data/selector">Selector</a>
   <a class='active' href="/data/" id='teamNavbarButton'></a>
@@ -76,15 +83,18 @@ h6, h4, h3, h2 {
   <table id='matchTable' style="display:none;float: left;"></table>
   <div id="stats"></div>
 </div>
+<table id='teamTable' style="float: left;"></table>
 <div id="scouting"></div>
 <script>
 
 const matchTable = getel('matchTable')
+const teamTable = getel('teamTable')
 const event = getel('events')
 const statsdiv = getel('stats')
 const scoutingdiv = getel('scouting')
 
 const team = window.location.href.split('/')[5]
+
 getel('teamNavbarButton').href = "/data/team/"+team
 getel('teamNavbarButton').innerText = team
 
@@ -98,6 +108,7 @@ onOpen(function(){})
 onUsername(function(){})
 onEventList(function(){
   selEvent = getel('events').value
+  
   if(selEvent != ""){
     socket.emit("getProcessedData", event.value)
     socket.emit('readFromFile', event.value, 'matches.jsonpack')
@@ -106,7 +117,7 @@ onEventList(function(){
 })
 onMatchPosition(function(){})
 
-socket.on('processedData', (data)=>{
+socket.on('processedData', (data, pinvInaccuracy)=>{
   data = jsonpack.unpack(data)
   console.log(data)
   for(i=0;i<data.length;i++){
@@ -118,19 +129,47 @@ socket.on('processedData', (data)=>{
     return
   }
   allStats = data
-  statsdiv.innerHTML += `<h1>${team}</h1>
-<h5>A-votes: ${stats.autoPerformance} (#${getPlace('autoPerformance')})</h5>
-<h5>T-votes: ${stats.teleopPerformance} (#${getPlace('teleopPerformance')})</h5>
-<h5>Votes: ${stats.overallPerformance} (#${getPlace('overallPerformance')})</h5>
-<h5>S-ness: ${stats.scoreArea}</h5>
-<h5>Stage: ${stats.endState} (#${getPlace('endState')})</h5>
-<h5>A-Notes: ${stats.autoNotes}</h5>
-<h5>T-Notes: ${stats.teleopNotes}</h5>
-<h5>OPR: ${stats.OPR} (#${getPlace('OPR')})</h5>
-<h5>DPR: ${stats.DPR} (#${getPlace('DPR')})</h5>
-<h5>CCWM: ${stats.CCWM}</h5>
-<h5>Score: ${stats.avgScore} (#${getPlace('avgScore')})</h5>
-<h5>Win %: ${stats.winPercent}% (#${getPlace('winPercent')})</h5>`
+  statsdiv.innerHTML += `
+  <a href="https://www.thebluealliance.com/team/${team}/${event.value.substring(0,4)}">View on TheBlueAlliance</a><br>
+  <h1>${team}</h1>`
+if(pinvInaccuracy){
+    alert('Singular matrix!\n Results may not be fully accurate!')
+  }
+  teamTable.innerHTML += `<tr style='cursor:pointer;'>
+<th onclick='sortTable(teamTable, 0)'>key</th>
+<th onclick='sortTable(teamTable, 1)'>Auto</th>
+<th onclick='sortTable(teamTable, 2)'>Teleop</th>
+<th onclick='sortTable(teamTable, 3)'>Votes</th>
+<th onclick='sortTable(teamTable, 4)'>S-ness</th>
+<th onclick='sortTable(teamTable, 5)'>Stage</th>
+<th onclick='sortTable(teamTable, 6)'>A-Notes</th>
+<th onclick='sortTable(teamTable, 7)'>T-Notes</th>
+<th onclick='sortTable(teamTable, 8)'>OPR</th>
+<th onclick='sortTable(teamTable, 9)'>DPR</th>
+<th onclick='sortTable(teamTable, 10)'>CCWM</th>
+<th onclick='sortTable(teamTable, 11)'>Score</th>
+<th onclick='sortTable(teamTable, 12)'>Win %</th>
+</tr>`
+
+  for(i=0;i<data.length;i++){
+    if(String(data[i].key) != team){continue}
+    teamTable.innerHTML += `<tr>
+<th>${data[i].key}</th>
+<th>${data[i].autoPerformance}</th>
+<th>${data[i].teleopPerformance}</th>
+<th>${data[i].overallPerformance}</th>
+<th>${data[i].scoreArea}</th>
+<th>${data[i].endState}</th>
+<th>${data[i].autoNotes}</th>
+<th>${data[i].teleopNotes}</th>
+<th>${data[i].OPR}</th>
+<th>${data[i].DPR}</th>
+<th>${data[i].CCWM}</th>
+<th>${data[i].avgScore}</th>
+<th>${data[i].winPercent}%</th>
+</tr>`
+  }
+  teamTable.style.display = ''
 })
 
 socket.on('eventFileContent', (foldername, filename, data)=>{
@@ -170,7 +209,7 @@ socket.on('eventFileContent', (foldername, filename, data)=>{
 
       for(i=0;i<matchData.alliances.length;i++){
         if(!inMatch(i)){continue}
-        line = `<tr><th>qm${(i+1)}</th>`
+        line = `<tr><th class="tableSelect" onclick="redir('/data/match/${(i+1)}')">qm${(i+1)}</th>`
         for(a=0;a<3;a++){
           line += getElem(matchData.alliances, i, 'red', a)}
         for(a=0;a<3;a++){
@@ -191,10 +230,14 @@ socket.on('eventFileContent', (foldername, filename, data)=>{
       line += `<br><h4> By ${pitData.name}</h4>`
       line += `<br><h6>Drive type: ${pitData.driveType}</h6>`
       line += `<br><h6>Score area: ${pitData.scoreType}</h6>`
-      line += `<br><h6>Climb: ${pitData.isClimb}</h6>`
+      line += `<br><h6>Climb: ${pitData.climbPercent}0%</h6>`
+      line += `<br><h6>autoSpeakerNotes: ${pitData.autoSpeakerNotes}</h6>`
+      line += `<br><h6>autoAmpNotes: ${pitData.autoAmpNotes}</h6>`
+      line += `<br><h6>teleopSpeakerNotes: ${pitData.teleopSpeakerNotes}</h6>`
+      line += `<br><h6>teleopAmpNotes: ${pitData.teleopAmpNotes}</h6>`
       line += `<br><h6>Reliability: ${pitData.reliability}0%</h6>`
       line += `<p>${pitData.notes}</p>`
-      scoutingdiv.innerHTML = line + scoutingdiv.innerHTML
+      statsdiv.innerHTML += line
       break;
   }
 })
@@ -229,7 +272,7 @@ socket.on('multipleFiles', (data)=>{
     if(scout.name == undefined){
       continue
     }
-    line += `<br><h2>${match.key.split('-')[1]}</h2>`
+    line += `<h2>${match.key.split('-')[1]}</h2>`
     line += `<br><h3> by ${scout.name}</h3><br>`
     line += `<br><h6>Position: ${scout.alliance}-${scout.position}</h6>`
     line += `<br><h6>Blue score: ${scout.blueScore}</h6>`
@@ -241,7 +284,7 @@ socket.on('multipleFiles', (data)=>{
     line += `<br><h6>T-Notes: ${scout.teleopNotes}</h6>`
     line += `<br><h6>Vote: ${getPerformanceStr(scout.overallPerformance)}</h6>`
     line += `<br><h6>Condition: ${scout.robotCondition}</h6>`
-    line += `<br><p>${scout.notes}</p>`
+    line += `<p>${scout.notes}</p>`
     scoutingdiv.innerHTML += `<div id='scoutbox'>${line}</div>`
   }
   
@@ -257,7 +300,7 @@ function getPlace(keyname){
 }
 
 function redir(str){
-  window.location.href="http://"+window.location.href.split("/")[2]+str
+  window.location.pathname = str
 }
 
 </script>

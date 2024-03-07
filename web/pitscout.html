@@ -54,23 +54,18 @@
     <option value="Tank">Tank</option>
     <option value="Other">Other (use notes)</option>
   </select>
-  <label for="scoreType">Score area</label>
-  <select id="scoreType" onchange="">
+  <label for="scoreType" class="left">Score area</label>
+  <label for="climbPercent" class="right">Climb Percent</label>
+  <br>
+  <select id="scoreType" class="half" onchange="">
     <option disabled selected value> -- select an option -- </option>
     <option value="Exc-Speaker">Exclusively Speaker</option>
-    <option value="Speaker,AMP?">Speaker, but maybe AMP?</option>
+    <option value="Speaker. AMP?">Speaker, but maybe AMP?</option>
     <option value="Both">Designed for both</option>
-    <option value="AMP,Speaker?">AMP, but maybe Speaker?</option>
+    <option value="AMP. Speaker?">AMP, but maybe Speaker?</option>
     <option value="Exc-AMP">Exclusively AMP</option>
   </select>
-  <label for="isClimb">Climb</label>
-  <select id="isClimb" onchange="">
-    <option disabled selected value> -- select an option -- </option>
-    <option value="Yes">Yes, Can climb</option>
-    <option value="No">No, Cannot climb</option>
-  </select>
-  <label for="reliability">Reliability</label>
-  <select id="reliability" onchange="">
+  <select id="climbPercent" class="half">
     <option disabled selected value> -- select an option -- </option>
     <option value="0">0%</option>
     <option value="1">10%</option>
@@ -84,9 +79,54 @@
     <option value="9">90%</option>
     <option value="10">100%</option>
   </select>
-  <button id="save" onclick="saveData()">Save</button>
+  <label for="trapPercent" class="left">Trap Percent</label>
+  <label for="reliability" class="right">Reliability</label>
   <br>
+  <select id="trapPercent" class="half">>
+    <option disabled selected value> -- select an option -- </option>
+    <option value="0">0%</option>
+    <option value="1">10%</option>
+    <option value="2">20%</option>
+    <option value="3">30%</option>
+    <option value="4">40%</option>
+    <option value="5">50%</option>
+    <option value="6">60%</option>
+    <option value="7">70%</option>
+    <option value="8">80%</option>
+    <option value="9">90%</option>
+    <option value="10">100%</option>
+  </select>
+  <select id="reliability" class="half">>
+    <option disabled selected value> -- select an option -- </option>
+    <option value="0">0%</option>
+    <option value="1">10%</option>
+    <option value="2">20%</option>
+    <option value="3">30%</option>
+    <option value="4">40%</option>
+    <option value="5">50%</option>
+    <option value="6">60%</option>
+    <option value="7">70%</option>
+    <option value="8">80%</option>
+    <option value="9">90%</option>
+    <option value="10">100%</option>
+  </select>
+
+  <label for="autoSpeakerNotes" class="right">Auto notes in Speaker</label>
+  <label for="autoAmpNotes" class="left">Auto notes in AMP</label>
+  <br>
+  <input type="number" id="autoSpeakerNotes" class="half">
+  <input type="number" id="autoAmpNotes" class="half">
+
+  <label for="teleopSpeakerNotes" class="right">Teleop notes in Speaker</label>
+  <label for="teleopAmpNotes" class="left">Teleop notes in AMP</label>
+  <br>
+  <input type="number" id="teleopSpeakerNotes" class="half">
+  <input type="number" id="teleopAmpNotes" class="half">
+
+
   <textarea id="notes" style="display: none; width: 100%; height: 500px;" placeholder="notes"></textarea>
+  <br>
+  <button id="save" onclick="saveData()">Save</button>
 </div>
 
 <script>
@@ -94,7 +134,11 @@ const teamlistsel = getel('teamlist')
 
 const driveType = getel('driveType')
 const scoreType = getel('scoreType')
-const isClimb = getel('isClimb')
+const climbPercent = getel('climbPercent')
+const autoSpeakerNotes = getel('autoSpeakerNotes')
+const autoAmpNotes = getel('autoAmpNotes')
+const teleopSpeakerNotes = getel('teleopSpeakerNotes')
+const teleopAmpNotes = getel('teleopAmpNotes')
 const reliability= getel('reliability')
 const notes = getel('notes')
 
@@ -137,30 +181,45 @@ function setTeam(){
 }
 
 socket.on('eventFileContent', (dirname, filename, data)=>{
-  notes.value = ''
+  driveType.value = ""
+  scoreType.value = ""
+  climbPercent.value = ""
+  autoSpeakerNotes.value = 0
+  autoAmpNotes.value = 0
+  teleopSpeakerNotes.value = 0
+  teleopAmpNotes.value = 0
+  reliability.value = ""
+  notes.value = ""
   teamlistsel.value = selteam
   if(data != ''){
     data = jsonpack.unpack(data)
     driveType.value = data.driveType
     scoreType.value = data.scoreType
-    isClimb.value = data.isClimb
+    climbPercent.value = data.climbPercent
+    autoSpeakerNotes.value = data.autoSpeakerNotes
+    autoAmpNotes.value = data.autoAmpNotes
+    teleopSpeakerNotes.value = data.teleopSpeakerNotes
+    teleopAmpNotes.value = data.teleopAmpNotes
     reliability.value = data.reliability
     notes.value = data.notes
   }else{
-    driveType.value = ""
-    scoreType.value = ""
-    isClimb.value = ""
-    reliability.value = ""
-    notes.value = ""
     driveType.style.display = "none"
     scoreType.style.display = "none"
-    isClimb.style.display = "none"
+    climbPercent.style.display = "none"
+    autoSpeakerNotes.style.display = "none"
+    autoAmpNotes.style.display = "none"
+    teleopSpeakerNotes.style.display = "none"
+    teleopAmpNotes.style.display = "none"
     reliability.style.display = "none"
     notes.style.display = "none"
   }
   driveType.style.display = ""
   scoreType.style.display = ""
-  isClimb.style.display = ""
+  climbPercent.style.display = ""
+  autoSpeakerNotes.style.display = ""
+  autoAmpNotes.style.display = ""
+  teleopSpeakerNotes.style.display = ""
+  teleopAmpNotes.style.display = ""
   reliability.style.display = ""
   notes.style.display = ""
 })
@@ -170,7 +229,11 @@ function saveData(){
     name: username.value,
     driveType: driveType.value,
     scoreType: scoreType.value,
-    isClimb: isClimb.value,
+    climbPercent: climbPercent.value,
+    autoSpeakerNotes: Number(autoSpeakerNotes.value),
+    autoAmpNotes: Number(autoAmpNotes.value),
+    teleopSpeakerNotes: Number(teleopSpeakerNotes.value),
+    teleopAmpNotes: Number(teleopAmpNotes.value),
     reliability: reliability.value,
     notes: notes.value
   })

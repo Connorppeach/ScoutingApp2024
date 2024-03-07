@@ -40,10 +40,10 @@ Python is better for statistics, and that's what we need to be in the scouting a
 - ~~Clean up code~~
 - ~~Get rid of "frc" in team names~~
 - ~~Add "sort" button in file send~~
-- Format team page better
-- Add an 'Event' Page, to view all the data about a single event
+- ~~Format team page better~~
+- ~~Add an 'Event' Page, to view all the data about a single event~~
+- ~~Add "view on TBA" buttons~~
 - Make a tool to convert data to new format
-  - Make previously sent file indicators
 - Practice mode
 - make not use socket-io
 - ~~Fix persistant scouting data issue~~

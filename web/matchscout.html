@@ -56,11 +56,11 @@
     <br>
     <input type="number" class="half" id="autoNotes" value="0">
     <select id="autoPerformance" class="half">
-      <option value="2">Far above average</option>
+      <option value="3">Far above average</option>
       <option value="1">Above average</option>
       <option selected value="0">Average</option>
       <option value="-1">Below average</option>
-      <option value="-2">Far below average</option>
+      <option value="-3">Far below average</option>
     </select>
     <br>
     <label for="teleopNotes" class="left">Teleop notes scored</label>
@@ -68,29 +68,29 @@
     <br>
     <input type="number" class="half" id="teleopNotes" value="0">
     <select id="teleopPerformance" class="half">
-      <option value="2">Far above average</option>
+      <option value="3">Far above average</option>
       <option value="1">Above average</option>
       <option selected value="0">Average</option>
       <option value="-1">Below average</option>
-      <option value="-2">Far below average</option>
+      <option value="-3">Far below average</option>
     </select>
     <br>
     <label for="overallPerformance" class="left">Overall performance</label>
     <label for="scoreArea" class="right">Score area</label>
     <br>
     <select id="overallPerformance" class="half">
-      <option value="2">Far above average</option>
+      <option value="3">Far above average</option>
       <option value="1">Above average</option>
       <option selected value="0">Average</option>
       <option value="-1">Below average</option>
-      <option value="-2">Far below average</option>
+      <option value="-3">Far below average</option>
     </select>
     <select id="scoreArea" class="half">
-      <option value="2">Exclusively in speaker</option>
+      <option value="3">Exclusively in speaker</option>
       <option value="1">Mostly in speaker</option>
       <option selected value="0">Both</option>
       <option value="-1">Mostly in AMP</option>
-      <option value="-2">Exclusively in AMP</option>
+      <option value="-3">Exclusively in AMP</option>
     </select>
     <br>
     <label for="robotCondition" class="left">Robot condition</label>
@@ -105,9 +105,11 @@
       <option value="gone">The robot was missing (Joe Johnson)</option>
     </select>
     <select id="endState" class="half">
-      <option value="5">Hung on stage with 1+ robots</option>
+      <option value="6">Hung on stage with 1+ robots</option>
+      <option value="4">Hung on stage alone, with Trap</option>
       <option value="3">Hung on stage alone</option>
-      <option selected value="0">None</option>
+      <option value="0">Attempted climb</option>
+      <option selected value="-1">None</option>
     </select>
     <br>
     <label for="blueScore" class="left">Blue Score</label>
@@ -283,7 +285,7 @@ function clearFields(){
   overallPerformance.value = 0
   blueScore.value = ''
   redScore.value = ''
-  endState.value = 0
+  endState.value = -1
   teamNotes.value = ''
   autoNotes.value = 0
   teleopNotes.value = 0
