@@ -210,17 +210,24 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
       clearFields()
 
       if(data != ''){
-        matchData = jsonpack.unpack(data)
-        blueScore.value = matchData.blueScore
-        robotCondition.value = matchData.robotCondition
-        autoPerformance.value = matchData.autoPerformance
-        teleopPerformance.value = matchData.teleopPerformance
-        overallPerformance.value = matchData.overallPerformance
-        redScore.value = matchData.redScore
-        scoreArea.value = matchData.scoreArea
-        endState.value = matchData.endState
-        teamNotes.value = matchData.notes
-        try{
+      matchData = jsonpack.unpack(data)
+      blueScore.value = matchData.blueScore
+      robotCondition.value = matchData.robotCondition
+      autoPerformance.value = matchData.autoPerformance
+      teleopPerformance.value = matchData.teleopPerformance
+      overallPerformance.value = matchData.overallPerformance
+      redScore.value = matchData.redScore
+      scoreArea.value = matchData.scoreArea
+      endState.value = matchData.endState
+      teamNotes.value = matchData.notes
+      try {
+        if (matchData.version != 1) {
+          alert("Out of date data.")
+        }
+      } catch {
+        alert("Out of date data.")
+      }
+          try{
           autoNotes.value = matchData.autoNotes
           teleopNotes.value = matchData.teleopNotes
         }catch{
@@ -312,7 +319,8 @@ function saveData(){
     redScore: Number(redScore.value),
     autoNotes: Number(autoNotes.value),
     teleopNotes: Number(teleopNotes.value),
-    notes: teamNotes.value
+    notes: teamNotes.value,
+    version: 1
   })
   socket.emit('writeToFile', selEvent, `matchscout-${matches.key}_qm${(curMatch+1)}-${curPosition}.jsonpack`, data)
   alert('Saved!')
