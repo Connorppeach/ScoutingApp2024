@@ -142,6 +142,11 @@ def matchscout():
 def pitscout():
     return app.send_static_file("pitscout.html")
 
+
+@app.route('/scout/practice')
+def practice():
+    return app.send_static_file("practice.html")
+
 @app.route('/qrgen')
 def qrgen():
     return app.send_static_file("qrgen.html")

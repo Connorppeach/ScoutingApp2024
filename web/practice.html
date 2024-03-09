@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
+<link rel="stylesheet" type="text/css" href="/src/style.css" />
+<link rel="stylesheet" type="text/css" href="/src/pico.min.css" />
+<script type="text/javascript" src="/src/socket.io.js"></script>
+<script type="text/javascript" src="/src/utils.js"></script>
+<script src="/src/jsonpack.js"></script>
+<style>
+body {
+  padding-top: 96px;
+}
+</style>
+</head>
+
+<body>
+<div class="topnav">
+  <a href="/data">Data</a>
+  <a class="active" href="/scout/match">Scouting</a>
+  <a href="/fileupload">Send</a>
+  <a href="/qrscan">Scan</a>
+  <a href="/tba">TBA</a>
+  <input id="username">
+  <select id="events" onchange="location.reload()">
+    <option disabled selected value>select</option>
+  </select>
+  <select id="position">
+    <option disabled selected value>select</option>
+    <option value="red-1">Red-1</option>
+    <option value="red-2">Red-2</option>
+    <option value="red-3">Red-3</option>
+    <option value="blue-1">Blue-1</option>
+    <option value="blue-2">Blue-2</option>
+    <option value="blue-3">Blue-3</option>
+  </select>
+</div>
+<div class="topnav" style="top:48px;">
+    <a href="/scout/match">Match Scouting</a>
+    <a href="/scout/pit">Pit Scouting</a>
+    <a class="active" href="/scout/practice">Practice</a>
+</div>
+
+<div class="container">
+    <select class="third red" id="red-1">
+        <option disabled selected value>select</option>
+      </select>
+      <select class="third red" id="red-2">
+        <option disabled selected value>select</option>
+      </select>
+      <select class="third red" id="red-3">
+        <option disabled selected value>select</option>
+      </select>
+    
+      <br>
+      <select class="third blue" id="blue-1">
+        <option disabled selected value>select</option>
+      </select>
+      <select class="third blue" id="blue-2">
+        <option disabled selected value>select</option>
+      </select>
+      <select class="third blue" id="blue-3">
+        <option disabled selected value>select</option>
+      </select>
+      <br>
+      <button onclick = "addMatch()">save new match</button>
+</div>
+<script>
+const red1 = getel('red-1')
+const red2 = getel('red-2')
+const red3 = getel('red-3')
+const blue1 = getel('blue-1')
+const blue2 = getel('blue-2')
+const blue3 = getel('blue-3')
+const selectors = [red1, red2, red3, blue1, blue2, blue3]
+
+
+let matchData = {}
+
+
+onOpen(function(){})
+onUsername(function(){})
+onEventList(function(){
+    if(events.value != ""){
+        socket.emit("readFromFile", events.value, 'matches.jsonpack')
+        socket.emit("getTeams", events.value)
+    }
+})
+onMatchPosition(function(){})
+
+socket.on('eventFileContent',(dirname, filename, data)=>{
+  console.log(data)
+  if(data == ''){return}
+  switch(filename.split('-')[0]) {
+    case 'matches.jsonpack':
+      matchData = jsonpack.unpack(data)
+      console.log(matchData)
+
+  }
+})
+
+socket.on('teamList',(teamList)=>{
+    teamList = teamList.split('•')
+    for(let a = 0; a < selectors.length; a++)
+    {
+        for(let b = 0; b < teamList.length; b++)
+        {
+            selectors[a].innerHTML += `<option value = "${teamList[b]}">${teamList[b]}</option>`
+        }
+    }
+})
+
+function addMatch()
+{
+    matchData.alliances.push({
+        red: [red1.value, red2.value, red3.value],
+        blue: [blue1.value, blue2.value, blue3.value]
+
+
+    })
+    console.log(matchData)
+    socket.emit("writeToFile", events.value, "matches.jsonpack", jsonpack.pack(matchData))
+    alert("Saved")
+}
+
+</script>`
+    
+</body>
+</html>
