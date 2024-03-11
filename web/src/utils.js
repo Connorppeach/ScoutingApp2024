@@ -60,6 +60,9 @@ function onUsername(func){
       setUsername(getel('username').value)
     }
   })
+  getel('username').addEventListener("focusout", (e) => {
+    setUsername(getel('username').value)
+  })
 }
 
 function getEventList(){

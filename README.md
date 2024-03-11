@@ -44,7 +44,7 @@ Python is better for statistics, and that's what we need to be in the scouting a
 - ~~Add an 'Event' Page, to view all the data about a single event~~
 - ~~Add "view on TBA" buttons~~
 - Make a tool to convert data to new format
-- Practice mode
+- ~~Practice mode (First Events API?)~~
 - make not use socket-io
 - ~~Fix persistant scouting data issue~~
 - Add data version (maybe?)
