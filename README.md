@@ -5,6 +5,7 @@ A remake of the scouting app for the 2024 FRC season
 Python is better for statistics, and that's what we need to be in the scouting app.
 ## Usage
 #### Installing
+- download python 3.11 https://www.python.org/ftp/python/3.11.8/python-3.11.8-amd64.exe (Python 3.12 no worky)   
 `git clone https://github.com/Team4388/ScoutingApp2024`    
 `cd ScoutingApp2024`   
 `pip install -r requirements.txt`   
