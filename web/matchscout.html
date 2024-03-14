@@ -211,24 +211,20 @@ socket.on('eventFileContent',(dirname, filename, data)=>{
       clearFields()
 
       if(data != ''){
-      matchData = jsonpack.unpack(data)
-      blueScore.value = matchData.blueScore
-      robotCondition.value = matchData.robotCondition
-      autoPerformance.value = matchData.autoPerformance
-      teleopPerformance.value = matchData.teleopPerformance
-      overallPerformance.value = matchData.overallPerformance
-      redScore.value = matchData.redScore
-      scoreArea.value = matchData.scoreArea
-      endState.value = matchData.endState
-      teamNotes.value = matchData.notes
-      try {
-        if (matchData.version != 1) {
+        matchData = jsonpack.unpack(data)
+        blueScore.value = matchData.blueScore
+        robotCondition.value = matchData.robotCondition
+        autoPerformance.value = matchData.autoPerformance
+        teleopPerformance.value = matchData.teleopPerformance
+        overallPerformance.value = matchData.overallPerformance
+        redScore.value = matchData.redScore
+        scoreArea.value = matchData.scoreArea
+        endState.value = matchData.endState
+        teamNotes.value = matchData.notes
+        if (matchData.version != undefined && matchData.version < 1) {
           alert("Out of date data.")
         }
-      } catch {
-        alert("Out of date data.")
-      }
-          try{
+        try{
           autoNotes.value = matchData.autoNotes
           teleopNotes.value = matchData.teleopNotes
         }catch{

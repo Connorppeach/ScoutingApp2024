@@ -48,7 +48,7 @@ Python is better for statistics, and that's what we need to be in the scouting a
 - ~~Practice mode (First Events API?)~~
 - make not use socket-io
 - ~~Fix persistant scouting data issue~~
-- Add data version (maybe?)
+- ~~Add data version (maybe?)~~
 
 - ~~Write scouting / pit scouting frontend~~
 - ~~^ Names of the people who did the scouting~~
