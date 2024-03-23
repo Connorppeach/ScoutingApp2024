@@ -37,6 +37,7 @@ Python is better for statistics, and that's what we need to be in the scouting a
 
 ## TODO
 
+- Add defence rating
 
 - ~~Clean up code~~
 - ~~Get rid of "frc" in team names~~

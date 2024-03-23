@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -54,6 +56,17 @@
     <p>
     - Remember, 'Average' means how a robot's performance compares to other teams you've seen. Not how the same team was doing in a previous match.<br>
     - If the robot is missing, select the "missing" option in robot Condition, and you don't have to fill out anything other than maybe some notes<br>
+    <br>
+    WRITE GOOD DATA! The outcome of this comp depends on what good teams we pick.<br>
+    Every bit of data counts <br>
+    <br>
+    Teams to pay close attention to:<br>
+    - 3006, Red Rock Robotics<br>
+    - 5232, Talons<br>
+    - 3729, The Raiders<br>
+    - 4418, Team IMPULSE<br>
+    - 1339, AngelBotics<br>
+    - 3200, Rapticon<br>
     </p>
     <label for="autoNotes" class="left">Auto notes scored</label>
     <label for="autoPerformance" class="right">Auto performance</label>
@@ -300,6 +313,9 @@ function clearFields(){
 
 function saveData(){
   if(matchlist.value == ''){return}
+
+
+
   data = jsonpack.pack({
     name: username.value,
     alliance: alliance,
