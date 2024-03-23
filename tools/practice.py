@@ -2,7 +2,7 @@ import jsonpack as jp
 import requests
 
 year = "2024"
-matchid = "FLWP"
+matchid = "CODE"
 url = f'https://frc-events.firstinspires.org/{year}/{matchid}/practice'
 
 r = requests.get(url)
@@ -16,7 +16,10 @@ del data[0]
 
 matchIndex = 1
 
-arr = []
+arr = {
+  "key": "2024" + matchid.lower(),
+  "alliances": []
+}
 
 for m in data:
   teamList = m.split("<a ")
@@ -33,14 +36,15 @@ for m in data:
     a = "frc" + a
     
     if teamIndex < 3:
-      red.append(a)
+      red.append(str(a[3:]))
     else:
-      blue.append(a)
+      blue.append(str(a[3:]))
     
     teamIndex += 1
-    
-  arr.append({
-    "key": "2024" + matchid.lower() + "_pm" + str(matchIndex),
+
+
+  arr['alliances'].append({
+    # "key": "2024" + matchid.lower() + "_pm" + str(matchIndex),
     "red": red,
     "blue": blue
   })
