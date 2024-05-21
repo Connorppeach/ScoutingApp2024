@@ -1,4 +1,7 @@
 # ScoutingApp2024
+
+If you don't want to eternally debug a mess of JS & Python with C++ dependencies for some reason, I would reccomend looking at the rewrite of this: [https://github.com/Team4388/ScoutingApp2025](https://github.com/Team4388/ScoutingApp2025)
+
 [https://www.youtube.com/watch?v=xCGu5Z_vaps](https://www.youtube.com/watch?v=xCGu5Z_vaps)
 A remake of the scouting app for the 2024 FRC season
 
@@ -63,3 +66,4 @@ Python is better for statistics, and that's what we need to be in the scouting a
 - ~~Add a "This requires an internet connection" warning for anything that requires an internet connection~~
 - ~~Make the UI GOOD!!~~
 - ~~^ make it mobile friendly for the tablets~~
+
